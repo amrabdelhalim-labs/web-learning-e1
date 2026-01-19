@@ -12,7 +12,7 @@ export async function POST(request) {
             "Content-Type": 'application/json'
         },
         body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-4.1-mini',
             messages: [
                 {
                     role: "user",
@@ -23,7 +23,7 @@ export async function POST(request) {
     };
  
     const response = await fetch("https://api.openai.com/v1/chat/completions", options)
-    const data =await response.json()
+    const data = await response.json()
  
   return NextResponse.json(data);
 };
