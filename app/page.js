@@ -1,10 +1,13 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import Image from 'next/image';
+import styles from './page.module.css';
+import MainLayout from './layouts/MainLayout';
 
 export default function Home() {
   return (
-    <main className={styles.main}>
-      <h1>اهلا بك في موقع علمني</h1>
-    </main>
-  )
-}
+    <MainLayout>
+      <h1>مرحبًا بك في علمني</h1>
+      <p>منصة تعليمية مدعومة بالذكاء الاصطناعي لمساعدتك في تعلم اللغة الإنجليزية.</p>
+    </MainLayout>
+  );
+};

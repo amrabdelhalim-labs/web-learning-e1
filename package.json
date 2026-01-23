@@ -9,9 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
+    "@mui/stylis-plugin-rtl": "^7.3.7",
     "next": "16.0.9",
     "openai": "^6.16.0",
     "react": "19.2.2",
-    "react-dom": "19.2.2"
+    "react-dom": "19.2.2",
+    "stylis": "^4.3.6"
   }
 }
