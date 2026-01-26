@@ -1,64 +1,79 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import { Grid } from '@mui/material';
-import SideBar from '@/app/components/SideBar/SideBar';
-import { AppContext } from '@/app/context/AppContext';
+import { Grid, CircularProgress, Snackbar, Alert, IconButton, Typography } from "@mui/material";
+import SideBar from '../components/SideBar/SideBar';
+import ToolBar from '../components/ToolBar/ToolBar';
+import { AppContext } from '../context/AppContext';
+import Footer from '../components/Footer/Footer';
+import styles from './MainLayout.module.css'
+import CloseIcon from "@mui/icons-material/Close"
+
 
 export default function MainLayout(props) {
-    const { openMobile, setOpenMobile, drawerWidth } = React.useContext(AppContext);
     const { window } = props;
+    const { drawerWidth, errorMessage, showAlert, setShowAlert } = React.useContext(AppContext);
 
     const container = window !== undefined ? () => window().document.body : undefined;
-
-    const handleDrawerToggle = () => {
-        setOpenMobile(!openMobile);
-    };
 
     return (
         <Grid
             container={container}
             spacing={0}
-            direction="column"
-        >
+            direction="column">
             <Box sx={{ display: 'flex' }}>
                 <CssBaseline />
-                <AppBar
-                    position="fixed"
-                    sx={{
-                        width: { sm: `calc(100% - ${drawerWidth}px)` },
-                        ml: { sm: `${drawerWidth}px` },
-                    }}
-                >
-                    <Toolbar>
-                        <IconButton
-                            color="inherit"
-                            aria-label="open drawer"
-                            edge="start"
-                            onClick={handleDrawerToggle}
-                            sx={{ mr: 2, display: { sm: 'none' } }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="h6" noWrap component="div">
-                            علمني
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
-                <SideBar mobileOpen={openMobile} />
+                <ToolBar />
+                <SideBar />
                 <Box
                     component="main"
-                    sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+                    sx={{
+                        flexGrow: 1,
+                        p: 3,
+                        width: { sm: `calc(100% - ${drawerWidth}px)` },
+                        mx: 'auto', maxWidth: 750
+                    }}
                 >
                     <Toolbar />
-                    {props.children}
+                    {props.loading ?
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexDirection: 'column',
+                            }}
+                        >
+                            <CircularProgress sx={{ mt: 50 }} />
+                            <Typography component="p">
+                                {props.loadingText}
+                            </Typography>
+                        </Box>
+                        :
+                        props.children
+                    }
                 </Box>
             </Box>
+            <Box className={styles.footer}>
+                <Footer onButtonClick={props.onButtonClick} />
+            </Box>
+            {
+                showAlert &&
+                <Snackbar open={showAlert}>
+                    <Alert severity="error" sx={{ width: '100%' }}>
+                        {errorMessage}
+                        <IconButton
+                            size='small'
+                            aria-label="close"
+                            color="inherit"
+                            onClick={() => setShowAlert(false)}
+                        >
+                            <CloseIcon fontSize="small" />
+                        </IconButton>
+                    </Alert>
+                </Snackbar>
+            }
         </Grid>
     );
 };

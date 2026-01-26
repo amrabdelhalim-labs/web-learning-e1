@@ -39,7 +39,7 @@ export default function CustomizedListItem(props) {
                     return (
                         <div key={index}>
                             <List component="div" disablePadding>
-                                <ListItemButton onClick={() => { setOpen(true); router.push(`../${Object.keys(ListItemObj)[index]}/${props.lectureNameEn}`) }}>
+                                <ListItemButton onClick={() => { setOpen(true); router.push(`../${props.lectureNameEn}/${Object.keys(ListItemObj)[index]}`) }}>
                                     <ListItemIcon>
                                         {icons[index]}
                                     </ListItemIcon>
