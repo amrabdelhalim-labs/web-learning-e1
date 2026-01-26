@@ -43,10 +43,11 @@ export default function MainLayout(props) {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 flexDirection: 'column',
+                                minHeight: '60vh'
                             }}
                         >
-                            <CircularProgress sx={{ mt: 50 }} />
-                            <Typography component="p">
+                            <CircularProgress size={60} />
+                            <Typography component="p" sx={{ fontSize: '16px', color: '#666', textAlign: 'center', mt: 2 }}>
                                 {props.loadingText}
                             </Typography>
                         </Box>
@@ -61,7 +62,7 @@ export default function MainLayout(props) {
             {
                 showAlert &&
                 <Snackbar open={showAlert}>
-                    <Alert severity="error" sx={{ width: '100%' }}>
+                    <Alert severity="error" sx={{ width: '100%', backgroundColor: '#d32f2f', color: '#fff' }}>
                         {errorMessage}
                         <IconButton
                             size='small'
