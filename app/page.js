@@ -8,16 +8,14 @@ import { getChatCompletion } from './controllers/dataFetch';
 import { AppContext } from './context/AppContext';
 
 export default function Home() {
-  const [messages, setMessages] = React.useState([]);
-  const [message, setMessage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
   const {
     messageValue,
     contextPreviousMessage,
-    setContextPreviousMessage,
-    setShowAlert,
-    setErrorMessage,
+    messages,
+    handleChatResponse,
+    clearMessages,
     setShowFooterButton
   } = React.useContext(AppContext);
 
@@ -36,7 +34,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const response = await getChatCompletion (
+      const response = await getChatCompletion(
         [
           ...contextPreviousMessage,
           {
@@ -45,8 +43,8 @@ export default function Home() {
           }
         ]
       );
-      
-      checkResponse(response);
+
+      handleChatResponse(response, messageValue);
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -54,44 +52,20 @@ export default function Home() {
     };
   };
 
-  const checkResponse = (response) => {
-    if (response.status == 200) {
-      setMessages(prev => [
-        ...prev,
-        {
-          role: "user",
-          content: messageValue
-        },
-        {
-          role: response.data.role,
-          content: response.data.content
-        }
-      ]);
-      setMessage(response.data.content);
-      setContextPreviousMessage([
-        ...contextPreviousMessage,
-        {
-          role: "user",
-          content: messageValue
-        },
-        {
-          role: response.data.role,
-          content: response.data.content
-        }
-      ]);
-    } else {
-      setShowAlert(true);
-      setErrorMessage(response.data.error);
-    };
-  };
-
   React.useEffect(() => {
     if (messageValue) {
       getAnswer();
     } else {
-      setMessage(null);
+      clearMessages();
     };
   }, [messageValue]);
+
+  // تفريغ المحادثة عند مغادرة الصفحة
+  React.useEffect(() => {
+    return () => {
+      clearMessages();
+    };
+  }, []);
 
 
   return (
@@ -107,15 +81,15 @@ export default function Home() {
                 'قسم المحادثة وداخله ستأخذ جملة وتعمل على قولها وسيتأكد التطبيق من لفظك',
                 'قسم الترجمة والذي تترجم فيه جملة وتتأكد من ترجمتها'
               ].map((item, index) => {
-                  return (
-                    <ListItem key={index} >
-                      <ListItemIcon sx={{ minWidth: '35px' }}>
-                        <PushPinIcon />
-                      </ListItemIcon>
-                      <ListItemText primary={item} sx={{ color: "#757575" }} />
-                    </ListItem >
-                  );
-                })};
+                return (
+                  <ListItem key={index} >
+                    <ListItemIcon sx={{ minWidth: '35px' }}>
+                      <PushPinIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={item} sx={{ color: "#757575" }} />
+                  </ListItem >
+                );
+              })};
             </List>
             <Box component="div" sx={{ mt: 2 }}>
               <Typography variant="p" component="p">يمكنك الوصول إلى هذه الأقسام من القائمة الجانبية على اليمين، </Typography>
