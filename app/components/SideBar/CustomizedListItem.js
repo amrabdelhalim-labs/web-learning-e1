@@ -29,7 +29,7 @@ export default function CustomizedListItem(props) {
     return (
         <>
             <ListItem disablePadding>
-                <ListItemButton onClick={() => { setOpen(!open) }} onBlur={() => setOpen(false)}>
+                <ListItemButton onClick={() => { setOpen(!open) }}>
                     <ListItemText primary={props.lectureName} />
                     {open ? <ExpandLess /> : <ExpandMore />}
                 </ListItemButton>

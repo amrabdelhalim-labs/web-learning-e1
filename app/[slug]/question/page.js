@@ -15,6 +15,7 @@ export default function Page({ params }) {
     const [assistantAnswer, setAssistantAnswer] = useState("");
     const [answerLoading, setAnswerLoading] = useState(false);
     const [userAnswer, setUserAnswer] = useState("");
+    const [answersDisabled, setAnswersDisabled] = useState(false);
 
 
     const prompt = {
@@ -63,6 +64,7 @@ export default function Page({ params }) {
 
     const getQuestion = async () => {
         setAssistantAnswer("");
+        setAnswersDisabled(false);
         setShowFooterButton(false);
         setLoading(true);
 
@@ -137,6 +139,7 @@ export default function Page({ params }) {
 
     const checkAnswer = async (userAnswer) => {
         setAnswerLoading(true);
+        setAnswersDisabled(true);
 
         const response = await getChatCompletion([
             {
@@ -155,6 +158,7 @@ export default function Page({ params }) {
 
     const getNewQuestion = async () => {
         setAssistantAnswer("");
+        setAnswersDisabled(false);
         setLoading(true);
 
         const response = await getChatCompletion(
@@ -191,10 +195,16 @@ export default function Page({ params }) {
                     {
                         answersArray && answersArray.map((item, index) => {
                             return (
-                                <Button variant="contained" size="medium"
+                                <Button 
+                                    variant="contained" 
+                                    size="medium"
                                     sx={{ ml: 2, mt: 2, direction: 'rtl' }}
                                     key={index}
-                                    onClick={() => { setUserAnswer(item); checkAnswer(item); }}>{item}</Button>
+                                    disabled={answersDisabled || answerLoading}
+                                    onClick={() => { setUserAnswer(item); checkAnswer(item); }}
+                                >
+                                    {item}
+                                </Button>
                             )
                         })
                     }

@@ -31,14 +31,20 @@ export async function POST(request) {
     }
 
     try {
-        const response = await openai.completions.create({
-            model: "gpt-3.5-turbo-instruct",
-            prompt: req.message,
-            temperature: 0,
-            max_tokens: 200
+        // استخدام Chat Completions API بدلاً من Completions API القديم
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "user",
+                    content: req.message
+                }
+            ],
+            temperature: 0.7,
+            max_tokens: 500
         });
 
-        return NextResponse.json({ text: response.choices[0].text });
+        return NextResponse.json({ text: response.choices[0].message.content });
     } catch (error) {
         if (error.status === 401) {
             return NextResponse.json(
