@@ -19,10 +19,23 @@ export default function Page({ params }) {
 
     const prompt = {
         role: "user",
-        content: `Please give me one multiple-choice question exercise about ${slug} 
-        without an answer so that I can work on solving it. Also, consider me an English language student learning 
-        the ${slug} section. you must put all question text on one line and each answer on a separate line and choices shold start by cpital 
-        letter A), B), C) and D). the question shold be in level A2 in english, write the question in first line`
+        content: `Give me one multiple-choice question about ${slug} for an A2 English learner.
+
+        IMPORTANT FORMAT RULES:
+        - Write the question text on line 1
+        - Write choice A) on line 2
+        - Write choice B) on line 3  
+        - Write choice C) on line 4
+        - Write choice D) on line 5
+        - Each choice MUST be on a NEW LINE
+        - Do NOT include the answer
+
+        Example format:
+        What is the past tense of "go"?
+        A) goes
+        B) going
+        C) went
+        D) goed`
     };
 
     const loadingTextArray = [
@@ -52,7 +65,7 @@ export default function Page({ params }) {
         setAssistantAnswer("");
         setShowFooterButton(false);
         setLoading(true);
-        
+
         const response = await getChatCompletion(
             [
                 prompt
@@ -66,12 +79,28 @@ export default function Page({ params }) {
     };
 
     const questionRegex = (message) => {
-        const regex = /([A-Ea-e]\) | [A-Ea-e]\.)(.*)/g;
-        const answerArray = message.match(regex);
-        const firstLine = message.split("\n")[0];
-        
-        setAnswersArray(answerArray);
-        setQuestion(firstLine);
+        // تقسيم النص لأسطر
+        const lines = message.split(/\r?\n/).filter(line => line.trim().length > 0);
+
+        // استخراج السؤال (أول سطر لا يبدأ بـ A) أو B) أو C) أو D))
+        const questionLine = lines.find(line => !/^\s*[A-D]\s*\)/.test(line)) || lines[0];
+
+        // استخراج الإجابات - أي سطر يبدأ بـ A) أو B) أو C) أو D)
+        const answers = lines.filter(line => /^\s*[A-D]\s*\)/.test(line)).map(ans => ans.trim());
+
+        // إذا لم نجد إجابات في أسطر منفصلة، نحاول استخراجها من نفس السطر
+        if (answers.length === 0) {
+            // محاولة استخراج من سطر واحد مثل: "Question? A) ans B) ans C) ans D) ans"
+            const singleLineRegex = /([A-D]\)\s*[^A-D]+?)(?=[A-D]\)|$)/g;
+            const matches = message.matchAll(singleLineRegex);
+
+            for (const match of matches) {
+                answers.push(match[0].trim());
+            };
+        };
+
+        setQuestion(questionLine.trim());
+        setAnswersArray(answers.length > 0 ? answers : []);
         setMessage(message);
     };
 
@@ -119,7 +148,7 @@ export default function Page({ params }) {
                 content: `هل الإجابة ${userAnswer} صحيحة للسؤال التالي: ${message}`
             }
         ]);
-        
+
         checkResponse(response, "answer");
         setAnswerLoading(false);
     };
@@ -137,7 +166,7 @@ export default function Page({ params }) {
                 }
             ]
         );
-        
+
         checkResponse(response, "question");
         setLoading(false);
     };

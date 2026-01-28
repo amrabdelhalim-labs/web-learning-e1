@@ -102,16 +102,20 @@ export default function Home() {
           </CardContent>
           :
           <CardContent sx={{ mb: 12 }}>
-            {messages.map((msg, index) => (
-              <Box key={index} sx={{ mb: 3, textAlign: msg.role === 'user' ? 'right' : 'left' }}>
-                <Typography sx={{ fontWeight: 'bold', mb: 1, fontSize: '14px', color: msg.role === 'user' ? '#1976d2' : '#388e3c' }}>
-                  {msg.role === 'user' ? 'أنت' : 'المساعد'}:
-                </Typography>
-                <Typography sx={{ fontSize: '16px', lineHeight: 1.6 }} variant="p" component="div">
-                  {msg.content.split(/\n/).map((line, i) => <p key={i}>{line}</p>)}
+            {/* عرض آخر رد من المساعد فقط */}
+            {messages.filter(msg => msg.role === 'assistant').slice(-1).map((msg, index) => (
+              <Box key={index} sx={{ 
+                p: 2, 
+                borderRadius: 2, 
+                backgroundColor: '#f5f5f5',
+                border: '1px solid #e0e0e0'
+              }}>
+                <Typography sx={{ fontSize: '16px', lineHeight: 1.8 }} variant="p" component="div">
+                  {msg.content.split(/\n/).map((line, i) => <p key={i} style={{ margin: '8px 0' }}>{line}</p>)}
                 </Typography>
               </Box>
             ))}
+
           </CardContent>
       }
     </MainLayout>
