@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { Box, Button, CardContent, CircularProgress, Typography, Paper } from '@mui/material';
+import {
+  Box,
+  Button,
+  CardContent,
+  CircularProgress,
+  Typography,
+  Paper,
+  useTheme,
+} from '@mui/material';
 import MainLayout from '@/app/layouts/MainLayout';
 import { getChatCompletion } from '@/app/lib/api';
 import { useAppContext } from '@/app/hooks/useAppContext';
@@ -10,6 +18,7 @@ import type { SlugPageParams, ChatMessage } from '@/app/types';
 
 export default function QuestionPage({ params }: SlugPageParams) {
   const { slug } = use(params);
+  const theme = useTheme();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [answersArray, setAnswersArray] = useState<string[]>([]);
@@ -170,12 +179,20 @@ export default function QuestionPage({ params }: SlugPageParams) {
               p: 2.5,
               mb: 3,
               borderRadius: 2,
-              backgroundColor: 'action.hover',
-              border: 1,
-              borderColor: 'divider',
+              backgroundColor: theme.palette.mode === 'dark' ? '#1a237e' : '#f3e5f5',
+              border: 2,
+              borderColor: '#3f51b5',
             }}
           >
-            <Typography component="h3" sx={{ direction: 'ltr', fontSize: '16px', fontWeight: 600 }}>
+            <Typography
+              component="h3"
+              sx={{
+                direction: 'ltr',
+                fontSize: '16px',
+                fontWeight: 600,
+                color: theme.palette.mode === 'dark' ? '#c5cae9' : '#4a148c',
+              }}
+            >
               {question}
             </Typography>
           </Paper>
@@ -212,12 +229,19 @@ export default function QuestionPage({ params }: SlugPageParams) {
                   sx={{
                     p: 2,
                     borderRadius: 2,
-                    backgroundColor: 'success.main',
-                    color: 'success.contrastText',
-                    opacity: 0.9,
+                    backgroundColor: theme.palette.mode === 'dark' ? '#1b5e20' : '#e8f5e9',
+                    border: 2,
+                    borderColor: '#2e7d32',
                   }}
                 >
-                  <Typography component="span" sx={{ fontSize: '15px' }}>
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: '15px',
+                      color: theme.palette.mode === 'dark' ? '#c8e6c9' : '#1b5e20',
+                      fontWeight: 500,
+                    }}
+                  >
                     {assistantAnswer}
                   </Typography>
                 </Paper>

@@ -9,6 +9,7 @@ import {
   IconButton,
   Typography,
   Paper,
+  useTheme,
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
@@ -34,6 +35,7 @@ const ReactMediaRecorder = dynamic(
 
 export default function ConversationPage({ params }: SlugPageParams) {
   const { slug } = use(params);
+  const theme = useTheme();
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [sentence, setSentence] = useState('');
@@ -199,9 +201,9 @@ export default function ConversationPage({ params }: SlugPageParams) {
               mt: 3,
               p: 2.5,
               borderRadius: 2,
-              backgroundColor: 'action.hover',
-              border: 1,
-              borderColor: 'divider',
+              backgroundColor: theme.palette.mode === 'dark' ? '#1a237e' : '#f3e5f5',
+              border: 2,
+              borderColor: '#3f51b5',
             }}
           >
             <Typography
@@ -210,6 +212,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
                 textAlign: 'center',
                 direction: 'ltr',
                 fontWeight: 500,
+                color: theme.palette.mode === 'dark' ? '#c5cae9' : '#4a148c',
               }}
               component="p"
             >
@@ -299,12 +302,20 @@ export default function ConversationPage({ params }: SlugPageParams) {
                 mt: 4,
                 p: 2.5,
                 borderRadius: 2,
-                backgroundColor: 'success.light',
-                border: 1,
-                borderColor: 'success.main',
+                backgroundColor: theme.palette.mode === 'dark' ? '#1b5e20' : '#e8f5e9',
+                border: 2,
+                borderColor: '#2e7d32',
               }}
             >
-              <Typography sx={{ fontSize: '16px', lineHeight: 1.8, mb: 2 }} component="p">
+              <Typography
+                sx={{
+                  fontSize: '16px',
+                  lineHeight: 1.8,
+                  mb: 2,
+                  color: theme.palette.mode === 'dark' ? '#c8e6c9' : '#1b5e20',
+                }}
+                component="p"
+              >
                 {assistantAnswer}
               </Typography>
               {sentence && (
@@ -313,10 +324,16 @@ export default function ConversationPage({ params }: SlugPageParams) {
                     mt: 2,
                     pt: 2,
                     borderTop: 1,
-                    borderColor: 'success.main',
+                    borderColor: '#2e7d32',
                   }}
                 >
-                  <Typography sx={{ fontSize: '13px', color: 'text.secondary' }} component="p">
+                  <Typography
+                    sx={{
+                      fontSize: '13px',
+                      color: theme.palette.mode === 'dark' ? '#b0d4b8' : '#558b2f',
+                    }}
+                    component="p"
+                  >
                     الجملة التي ذكرتها:
                   </Typography>
                   <Typography
@@ -326,6 +343,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
                       textAlign: 'center',
                       mt: 1,
                       fontWeight: 500,
+                      color: theme.palette.mode === 'dark' ? '#e8f5e9' : '#1b5e20',
                     }}
                     component="p"
                   >
