@@ -11,6 +11,7 @@ import {
   IconButton,
   Tooltip,
   Paper,
+  useTheme,
 } from '@mui/material';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import MainLayout from '@/app/layouts/MainLayout';
@@ -21,6 +22,7 @@ import type { SlugPageParams, ChatMessage, ApiResponse, ChatCompletionData } fro
 
 export default function TranslatePage({ params }: SlugPageParams) {
   const { slug } = use(params);
+  const theme = useTheme();
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState('');
@@ -265,6 +267,7 @@ export default function TranslatePage({ params }: SlugPageParams) {
               rows={2}
               value={value}
               onChange={(e) => setValue(e.target.value)}
+              inputProps={{ dir: isEnglishToArabic ? 'rtl' : 'ltr' }}
               sx={{
                 direction: isEnglishToArabic ? 'rtl' : 'ltr',
               }}
@@ -286,15 +289,23 @@ export default function TranslatePage({ params }: SlugPageParams) {
                 mt: 3,
                 p: 2.5,
                 borderRadius: 2,
-                backgroundColor: 'success.light',
-                border: 1,
-                borderColor: 'success.main',
+                backgroundColor: theme.palette.mode === 'dark' ? '#1b5e20' : '#e8f5e9',
+                border: 2,
+                borderColor: '#2e7d32',
               }}
             >
               {translateLoading ? (
-                <CircularProgress size={30} />
+                <CircularProgress size={30} sx={{ color: '#2e7d32' }} />
               ) : (
-                <Typography sx={{ fontSize: '16px', lineHeight: 1.8 }} component="div">
+                <Typography
+                  sx={{
+                    fontSize: '16px',
+                    lineHeight: 1.8,
+                    color: theme.palette.mode === 'dark' ? '#c8e6c9' : '#1b5e20',
+                    fontWeight: 500,
+                  }}
+                  component="div"
+                >
                   {assistantAnswer?.split(/\n/).map((line, i) => (
                     <Box key={i} component="p" sx={{ my: 1 }}>
                       {line}

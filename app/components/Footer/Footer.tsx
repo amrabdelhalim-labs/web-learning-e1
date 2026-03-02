@@ -71,6 +71,7 @@ export default function Footer({ onButtonClick }: FooterProps) {
           fullWidth
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          inputProps={{ dir: 'rtl' }}
           sx={{
             direction: 'rtl',
             '& .MuiOutlinedInput-root': {
@@ -83,9 +84,9 @@ export default function Footer({ onButtonClick }: FooterProps) {
           type="submit"
           sx={{
             position: 'absolute',
-            left: '2%',
-            transform: 'rotate(180deg) translateY(50%)',
+            right: '2%',
             top: '50%',
+            transform: 'translateY(-50%)',
             color: 'primary.main',
           }}
         >
