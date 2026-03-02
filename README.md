@@ -17,6 +17,7 @@
 - [الثيمات والوضع الليلي](#الثيمات-والوضع-الليلي)
 - [الأدوات والنصوص](#الأدوات-والنصوص)
 - [الاختبارات](#الاختبارات)
+- [النشر](#النشر-deployment)
 - [التوثيق](#التوثيق)
 - [المساهمة](#المساهمة)
 - [الترخيص](#الترخيص)
@@ -460,6 +461,65 @@ npm run test:coverage
 
 ---
 
+## النشر (Deployment)
+
+### الاستضافة الموصى بها
+
+| المنصة | المميزات | التكلفة | الأنسب لـ |
+|--------|----------|---------|----------|
+| **Vercel** | صفر إعداد، HTTPS تلقائي، CDN عالمي | مجاني (Hobby) | Next.js apps |
+| **Heroku** | سهل الإعداد، إدارة بسيطة | $5-7/شهر (Eco/Basic) | بيئة تعلم |
+| **Railway** | $5 رصيد مجاني، بدون cold starts | Pay-as-you-go | Small apps |
+| **Netlify** | Netlify Edge، تكامل Git | مجاني (100GB) | Static + SSR |
+
+### نشر سريع على Vercel (الأسهل)
+
+```bash
+# 1. تثبيت Vercel CLI
+npm i -g vercel
+
+# 2. نشر
+vercel
+
+# 3. إضافة متغيرات البيئة
+vercel env add OPENAI_API_KEY
+
+# 4. نشر للإنتاج
+vercel --prod
+```
+
+### نشر على Heroku (خطوة بخطوة)
+
+```bash
+# 1. إنشاء تطبيق Heroku
+heroku create my-ai-learning-app
+
+# 2. إضافة متغيرات البيئة
+heroku config:set OPENAI_API_KEY=sk-proj-...
+
+# 3. النشر
+git push heroku main
+
+# 4. فتح التطبيق
+heroku open
+```
+
+### دليل النشر الشامل
+
+لدليل شامل يغطي جميع المنصات، استكشاف الأخطاء، CI/CD، والأمان:
+
+👉 **[راجع `docs/deployment.md`](docs/deployment.md)**
+
+يحتوي على:
+- إعداد Heroku/Vercel/Railway/Render من الصفر
+- استراتيجيات المراقبة والنسخ الاحتياطي
+- استكشاف الأخطاء الشائعة
+- تقدير التكاليف ونصائح الأداء
+- أمان المفاتيح وتحديد معدل الطلبات
+- خطة Rollback والتوسع
+
+---
+
 ## التوثيق
 
 ### للمطورين
@@ -471,6 +531,7 @@ npm run test:coverage
 | [`docs/ai/architecture.md`](docs/ai/architecture.md) | المعمارية التفصيلية (Contexts، API Routes، etc.) |
 | [`docs/ai/feature-guide.md`](docs/ai/feature-guide.md) | دليل إضافة درس أو قسم جديد |
 | [`docs/testing.md`](docs/testing.md) | مرجع الاختبارات التفصيلي (55 اختبارًا) |
+| [`docs/deployment.md`](docs/deployment.md) | دليل النشر الشامل (Heroku، Vercel، Railway، etc.) |
 
 ### الدروس التعليمية
 
