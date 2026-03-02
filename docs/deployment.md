@@ -421,6 +421,29 @@ heroku logs --tail
 - Ensure app listens on `process.env.PORT || 3000`
 - Check all environment variables are set
 
+#### Issue: Heroku H10/H503 with `Cannot find module 'typescript'`
+
+**Symptoms:**
+- Heroku returns `503 Application Error`
+- Logs include `H10 - App crashed`
+- Runtime log shows: `Failed to load next.config.ts` and `Cannot find module 'typescript'`
+
+**Root Cause:**
+- App used `next.config.ts`
+- Heroku production runtime installs `dependencies` only (not `devDependencies`)
+- Next.js tries to transpile `next.config.ts` at startup and needs `typescript` runtime package
+
+**Best-Practice Fix (Applied):**
+- Replace `next.config.ts` with `next.config.js`
+- Keep TypeScript as dev tool only
+- Redeploy and confirm `heroku ps` status is `up`
+
+```bash
+# Verify after deploy
+heroku logs --tail --app <your-app>
+heroku ps --app <your-app>
+```
+
 ### 6.3 Performance Issues
 
 #### Issue: Slow API responses
@@ -676,8 +699,8 @@ export function rateLimitMiddleware(req: NextRequest) {
 
 ### CORS (if adding external frontends)
 
-```typescript
-// next.config.ts
+```javascript
+// next.config.js
 const nextConfig = {
   async headers() {
     return [
@@ -692,6 +715,8 @@ const nextConfig = {
     ];
   },
 };
+
+module.exports = nextConfig;
 ```
 
 ---
