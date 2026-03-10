@@ -361,38 +361,23 @@ Format:
 **التدفق:**
 1. طلب جملة إنجليزية بسيطة من GPT
 2. عرض الجملة
-3. المستخدم يسجل صوته عبر **react-media-recorder**
+3. المستخدم يسجل صوته عبر **useAudioRecorder** hook
 4. إرسال الصوت إلى `/api/speech-to-text`
 5. مقارنة النص المُتعرَّف عليه مع الجملة الأصلية عبر GPT
 6. عرض تقييم النطق
 
-**مكتبات:**
+**تسجيل الصوت (cross-platform):**
 ```typescript
-import dynamic from 'next/dynamic';
+import { useAudioRecorder } from '@/app/hooks/useAudioRecorder';
 
-const ReactMediaRecorder = dynamic(
-  () => import('react-media-recorder').then((mod) => mod.ReactMediaRecorder)،
-  { ssr: false }
-);
+// يكتشف تلقائيًا أفضل MIME type (WebM → MP4 → OGG)
+const { status, mediaBlobUrl, startRecording, stopRecording, clearBlobUrl, isSupported, error } = useAudioRecorder();
 ```
 
-**السبب:** `react-media-recorder` يستخدم browser APIs — يجب تحميله فقط في العميل.
-
-**معالجة الصوت:**
-```typescript
-<ReactMediaRecorder
-  audio
-  onStop={(blobUrl) => {
-    setSentence(blobUrl);
-    fetchText(blobUrl);  // → getTranscription()
-  }}
-  render={({ startRecording، stopRecording، mediaBlobUrl }) => (
-    <IconButton onClick={isRecording ? stopRecording : startRecording}>
-      {isRecording ? <StopCircleIcon /> : <MicIcon />}
-    </IconButton>
-  )}
-/>
-```
+**توافق الأجهزة:**
+- Chrome/Firefox: `audio/webm;codecs=opus`
+- Safari/iOS: `audio/mp4`
+- الخطاف يعالج أذونات الميكروفون ويعرض رسائل خطأ بالعربية
 
 ### 5.6 translate/page.tsx
 
@@ -488,19 +473,43 @@ const iconMap = {
 **الملف:** `app/components/Footer/Footer.tsx`
 
 **المسؤوليات:**
-- عرض زر "جملة جديدة" أو نص مخصص (`textButton`)
-- إرسال حدث `onButtonClick` عند الضغط
+- حقل "اسألني" — إرسال سؤال حر للذكاء الاصطناعي
+- زر إجراء مخصص (`textButton`)
+
+**تدفق "اسألني":**
+1. المستخدم يكتب سؤالاً في حقل "اسألني"
+2. عند الإرسال: `setMessageValue(value)` + `router.push('/')`
+3. الصفحة الرئيسية تستقبل `messageValue` وترسله مع `ASK_ME_SYSTEM_PROMPT` إلى OpenAI
+4. الرد يُعرض عبر `MarkdownRenderer`
+
+### 6.5 MarkdownRenderer
+
+**الملف:** `app/components/MarkdownRenderer.tsx`
+
+**المسؤوليات:**
+- تحويل نص Markdown من ردود الذكاء الاصطناعي إلى عناصر React/MUI
+- دعم: عناوين، قوائم، خط عريض، كود (inline + block)، جداول، اقتباسات
+- متوافق مع RTL والوضع الليلي/النهاري
+- يقبل `color` prop لتخصيص لون النص حسب القسم
 
 **Props:**
 ```typescript
-interface FooterProps {
-  showButton: boolean;
-  textButton: string;
-  onButtonClick: () => void;
+interface MarkdownRendererProps {
+  content: string;   // نص Markdown
+  color?: string;    // لون مخصص للنص (اختياري)
 }
 ```
 
-### 6.5 MainLayout
+**الاعتماديات:** `react-markdown` + `remark-gfm`
+
+**الاستخدام في جميع الصفحات:**
+- الصفحة الرئيسية (ردود "اسألني")
+- صفحة الشرح (شرح القاعدة)
+- صفحة الأسئلة (تقييم الإجابات)
+- صفحة المحادثة (تقييم النطق)
+- صفحة الترجمة (تقييم الترجمة)
+
+### 6.6 MainLayout
 
 **الملف:** `app/layouts/MainLayout.tsx`
 
@@ -606,6 +615,19 @@ const cacheRtl = createCache({
   }
 }
 ```
+
+---
+
+### 7.4 التنسيقات المركزية (Centralized Styles)
+
+**الملف:** `app/styles.ts`
+
+ملف مركزي يحتوي على:
+- **ألوان الأقسام** (`sectionColors`) — ثلاث لوحات ألوان: أخضر (إجابات)، بنفسجي (أسئلة)، أزرق (شرح)
+- **أنماط Paper** — دوال جاهزة (`answerPaperSx`، `questionPaperSx`، `lecturePaperSx`، `neutralPaperSx`)
+- **ثوابت** — `CONTENT_BOTTOM_MARGIN`، `paperBase`
+
+**الفائدة:** يمنع تكرار ألوان الداكن/الفاتح عبر الصفحات ويضمن تناسق التصميم.
 
 ---
 

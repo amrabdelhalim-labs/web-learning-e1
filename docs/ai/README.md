@@ -27,11 +27,12 @@
 ```
 app/
 ├── types.ts              ← جميع تعريفات الأنواع
-├── config.ts             ← ثوابت التطبيق (LESSONS، APP_NAME، etc.)
+├── config.ts             ← ثوابت التطبيق (LESSONS، APP_NAME، ASK_ME_SYSTEM_PROMPT، etc.)
+├── styles.ts             ← تنسيقات مركزية (ألوان الأقسام، أنماط Paper، fontSize)
 ├── context/              ← React Contexts (ThemeContext، AppContext)
-├── hooks/                ← Custom hooks (useThemeMode، useAppContext)
+├── hooks/                ← Custom hooks (useThemeMode، useAppContext، useAudioRecorder)
 ├── lib/                  ← Utilities (api.ts، apiErrors.ts)
-├── components/           ← React components (ToolBar، SideBar، Footer)
+├── components/           ← React components (ToolBar، SideBar، Footer، MarkdownRenderer)
 ├── layouts/              ← Layout wrappers (MainLayout)
 ├── api/                  ← API Routes (chat-completion، speech-to-text)
 └── [slug]/               ← Dynamic pages (lecture، question، conversation، translate)
@@ -53,6 +54,10 @@ app/
 | **Config Centralization** | جميع الثوابت في `app/config.ts` (LESSONS، APP_NAME، etc.) |
 | **Error Handling** | استخدم `handleOpenAIError()` من `apiErrors.ts` — رسائل عربية |
 | **Layout Pattern** | صفحات المحتوى تستخدم `MainLayout` wrapper |
+| **Centralized Styles** | ألوان الأقسام وأنماط Paper و`fontSize` في `app/styles.ts`، لا hardcoded hex colors أو px |
+| **Audio Recording** | تسجيل الصوت عبر `useAudioRecorder` hook، لا `react-media-recorder` |
+| **Markdown Rendering** | ردود AI تُعرض عبر `MarkdownRenderer`، لا plain text أو `split('\n')` |
+| **System Prompt** | خاصية "اسألني" تبدأ بـ `ASK_ME_SYSTEM_PROMPT` من `config.ts` |
 
 ### التسميات
 

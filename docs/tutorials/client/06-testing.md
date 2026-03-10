@@ -21,20 +21,27 @@
 ### `vitest.config.ts`
 
 ```typescript
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from 'vitest/config'; // استيراد أداة تعريف الإعدادات من Vitest
+import react from '@vitejs/plugin-react';          // إضافة دعم React (JSX/TSX)
+import path from 'path';                           // أداة Node.js للتعامل مع المسارات
 
 export default defineConfig({
-  plugins: [react()], // دعم JSX/TSX
+  plugins: [react()],                              // تفعيل إضافة React
   test: {
-    globals: true,           // describe, it, expect بدون استيراد
-    environment: 'jsdom',    // محاكاة المتصفح
-    setupFiles: './app/__tests__/setupTests.ts',
-    include: ['app/__tests__/**/*.test.{ts,tsx}'],
+    globals: true,                                 // describe, it, expect متاحة بدون استيراد
+    environment: 'jsdom',                          // محاكاة بيئة المتصفح (DOM) في Node.js
+    setupFiles: './app/tests/setupTests.ts',       // ملف يُحمّل تلقائياً قبل كل اختبار
+    include: ['app/tests/**/*.test.{ts,tsx}'],     // نمط أسماء ملفات الاختبار
+    coverage: {
+      provider: 'v8',                              // محرك جمع بيانات التغطية
+      include: ['app/**/*.{ts,tsx}'],              // الملفات التي نريد قياس تغطيتها
+      exclude: ['app/tests/**', 'app/layout.tsx', 'app/providers.tsx'], // استثناءات
+    },
   },
   resolve: {
-    alias: { '@': path.resolve(__dirname, '.') },
+    alias: {
+      '@': path.resolve(__dirname, '.'),           // تفعيل المسارات المختصرة (@/app/...)
+    },
   },
 });
 ```
@@ -49,26 +56,26 @@ export default defineConfig({
 ### `setupTests.ts`
 
 ```typescript
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom'; // يُضيف أدوات DOM مثل toBeInTheDocument()
 
-// محاكاة localStorage
-const store: Record<string, string> = {};
+// محاكاة localStorage — jsdom لا يوفر localStorage كاملة
+const store: Record<string, string> = {}; // كائن يعمل كمخزن بدلاً من localStorage الحقيقي
 Object.defineProperty(window, 'localStorage', {
   value: {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
+    getItem: (key: string) => store[key] || null,          // جلب قيمة بالمفتاح
+    setItem: (key: string, value: string) => { store[key] = value; }, // حفظ قيمة
+    removeItem: (key: string) => { delete store[key]; },   // حذف مفتاح
+    clear: () => { Object.keys(store).forEach((k) => delete store[k]); }, // مسح الكل
   },
 });
 
-// محاكاة matchMedia (مطلوب لنظام المظهر)
+// محاكاة matchMedia — مطلوب لنظام المظهر (يكشف تفضيل المستخدم light/dark)
 Object.defineProperty(window, 'matchMedia', {
-  value: vi.fn().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
+  value: vi.fn().mockImplementation((query: string) => ({ // دالة محاكاة تعيد كائن matchMedia
+    matches: false,               // لا يطابق أي media query افتراضياً
+    media: query,                 // نص الاستعلام الممرّر
+    addEventListener: vi.fn(),    // دالة فارغة (لا حاجة للأحداث في الاختبارات)
+    removeEventListener: vi.fn(), // دالة فارغة لإزالة المستمعين
   })),
 });
 ```
@@ -134,39 +141,39 @@ describe('وضع المظهر (ThemeMode)', () => {
 نستخدم `vi.fn()` لمحاكاة `fetch`:
 
 ```typescript
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
+const mockFetch = vi.fn();            // إنشاء دالة محاكاة بديلة عن fetch الحقيقية
+global.fetch = mockFetch;             // استبدال fetch العالمية بالمحاكاة
 
 describe('getChatCompletion()', () => {
   it('يجب أن يرسل طلب POST مع الرسائل', async () => {
-    // تحضير المحاكاة
-    mockFetch.mockResolvedValueOnce({
-      status: 200,
-      json: () => Promise.resolve({ role: 'assistant', content: 'مرحبًا' }),
+    // تحضير المحاكاة — نحدد ماذا ستعيد fetch عند استدعائها
+    mockFetch.mockResolvedValueOnce({  // محاكاة استجابة ناجحة (مرة واحدة)
+      status: 200,                     // كود الحالة
+      json: () => Promise.resolve({ role: 'assistant', content: 'مرحبًا' }), // بيانات JSON
     });
 
-    // تنفيذ الدالة
+    // تنفيذ الدالة المراد اختبارها
     const messages = [{ role: 'user' as const, content: 'أهلاً' }];
     const result = await getChatCompletion(messages);
 
-    // التحقق من الطلب
+    // التحقق أن fetch استُدعيت بالمعاملات الصحيحة
     expect(mockFetch).toHaveBeenCalledWith('/api/chat-completion', {
       method: 'POST',
       body: JSON.stringify({ messages }),
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // التحقق من النتيجة
+    // التحقق من النتيجة المُعادة
     expect(result.status).toBe(200);
     expect(result.data.content).toBe('مرحبًا');
   });
 
   it('يجب أن يعيد 500 عند خطأ الشبكة', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Network error'));
+    mockFetch.mockRejectedValueOnce(new Error('Network error')); // محاكاة فشل الشبكة
 
-    const result = await getChatCompletion([]);
-    expect(result.status).toBe(500);
-    expect(result.data.content).toBe('');
+    const result = await getChatCompletion([]);                  // استدعاء الدالة
+    expect(result.status).toBe(500);                             // التأكد من إرجاع 500
+    expect(result.data.content).toBe('');                        // التأكد من محتوى فارغ
   });
 });
 ```
@@ -188,12 +195,12 @@ import { useThemeMode } from '@/app/hooks/useThemeMode';
 describe('useThemeMode()', () => {
   const mockContext = { mode: 'light' as const, toggleTheme: () => {} };
 
-  // تغليف الخطاف بالسياق المطلوب
+  // تغليف الخطاف بالسياق المطلوب — createElement بدلاً من JSX لأن الملف .ts وليس .tsx
   const wrapper = ({ children }: { children: React.ReactNode }) =>
     React.createElement(ThemeContext.Provider, { value: mockContext }, children);
 
   it('يجب أن يعيد mode و toggleTheme', () => {
-    const { result } = renderHook(() => useThemeMode(), { wrapper });
+    const { result } = renderHook(() => useThemeMode(), { wrapper }); // تشغيل الخطاف داخل Provider
 
     expect(result.current.mode).toBe('light');
     expect(typeof result.current.toggleTheme).toBe('function');
@@ -233,20 +240,107 @@ npm run test:coverage
 ### مثال على المخرجات:
 
 ```
-✓ app/__tests__/config.test.ts     (18 tests)
-✓ app/__tests__/types.test.ts      (14 tests)
-✓ app/__tests__/api.test.ts        (8 tests)
-✓ app/__tests__/apiErrors.test.ts  (8 tests)
-✓ app/__tests__/useThemeMode.test.tsx  (3 tests)
-✓ app/__tests__/useAppContext.test.tsx (4 tests)
+✓ app/tests/config.test.ts          (25 tests)
+✓ app/tests/types.test.ts           (14 tests)
+✓ app/tests/styles.test.ts          (19 tests)
+✓ app/tests/api.test.ts             (8 tests)
+✓ app/tests/apiErrors.test.ts       (8 tests)
+✓ app/tests/useAudioRecorder.test.ts (6 tests)
+✓ app/tests/useAppContext.test.tsx   (4 tests)
+✓ app/tests/useThemeMode.test.tsx    (3 tests)
 
-Test Files  6 passed (6)
-     Tests  55 passed (55)
+Test Files  8 passed (8)
+     Tests  87 passed (87)
 ```
 
 ---
 
-## 8. خلاصة
+## 8. اختبار التنسيقات المركزية (`styles.test.ts`)
+
+نتحقق أن ألوان الأقسام وأحجام الخطوط والأنماط المركزية تعمل بشكل صحيح:
+
+```typescript
+import { sectionColors, paperBase, fontSize } from '@/app/styles'; // استيراد التنسيقات المركزية
+
+describe('ألوان الأقسام (sectionColors)', () => {
+  it('يجب أن يعيد ألوان الإجابات الصحيحة للوضعين', () => {
+    expect(sectionColors.answer.bg('dark')).toBe('#1b5e20');  // خلفية خضراء داكنة
+    expect(sectionColors.answer.bg('light')).toBe('#e8f5e9'); // خلفية خضراء فاتحة
+  });
+});
+
+describe('مقياس الخطوط (fontSize)', () => {
+  it('يجب أن يحتوي pageTitle على قيم متجاوبة', () => {
+    // fontSize.pageTitle يتغير حسب حجم الشاشة
+    expect(fontSize.pageTitle).toEqual({ xs: '1.25rem', sm: '1.375rem' });
+  });
+
+  it('يجب أن تكون جميع القيم بوحدة rem', () => {
+    // rem أفضل من px لأنها تحترم إعدادات المستخدم لحجم الخط
+    expect(fontSize.body).toMatch(/rem$/);
+  });
+});
+
+describe('أنماط Paper المركزية', () => {
+  it('يجب أن يحتوي paperBase على padding متجاوب', () => {
+    // padding متجاوب: 12px على الهواتف، 20px على الشاشات الكبيرة
+    expect(paperBase).toHaveProperty('p');
+    expect((paperBase as Record<string, unknown>).p).toEqual({ xs: 1.5, sm: 2.5 });
+  });
+});
+```
+
+---
+
+## 9. اختبار خطاف التسجيل الصوتي (`useAudioRecorder.test.ts`)
+
+خطاف تسجيل الصوت يعمل عبر MediaRecorder API — نتحقق من سلوكه في حالات مختلفة:
+
+```typescript
+import { renderHook, act } from '@testing-library/react'; // أدوات اختبار الخطافات
+import { useAudioRecorder } from '@/app/hooks/useAudioRecorder'; // الخطاف المراد اختباره
+
+describe('useAudioRecorder()', () => {
+  it('يجب أن يبدأ بحالة idle', () => {
+    const { result } = renderHook(() => useAudioRecorder()); // تشغيل الخطاف
+    expect(result.current.status).toBe('idle');               // الحالة الابتدائية
+    expect(result.current.mediaBlobUrl).toBeNull();           // لا يوجد تسجيل بعد
+    expect(result.current.error).toBeNull();                  // لا يوجد خطأ
+  });
+
+  it('يجب أن يكتشف عدم الدعم عند غياب MediaRecorder', () => {
+    const original = globalThis.MediaRecorder; // حفظ النسخة الأصلية
+    delete globalThis.MediaRecorder;           // إزالة MediaRecorder لمحاكاة متصفح قديم
+
+    const { result } = renderHook(() => useAudioRecorder());
+    expect(result.current.isSupported).toBe(false); // غير مدعوم
+
+    globalThis.MediaRecorder = original; // استعادة MediaRecorder
+  });
+
+  it('يجب أن يعيد خطأ عند رفض إذن الميكروفون', async () => {
+    // محاكاة رفض المستخدم لإذن الميكروفون
+    navigator.mediaDevices.getUserMedia = vi.fn()
+      .mockRejectedValue(new Error('Permission denied'));
+
+    const { result } = renderHook(() => useAudioRecorder());
+    await act(async () => { await result.current.startRecording(); });
+
+    expect(result.current.error).toContain('السماح'); // رسالة خطأ عربية
+  });
+});
+```
+
+| الحالة المختبرة | لماذا نختبرها |
+|----------------|---------------|
+| الحالة الابتدائية | التأكد أن الخطاف يبدأ نظيفاً |
+| غياب MediaRecorder | متصفحات قديمة لا تدعم التسجيل |
+| رفض الإذن | المستخدم يرفض صلاحية الميكروفون |
+| عدم الدعم | أجهزة بدون ميكروفون |
+
+---
+
+## 10. خلاصة
 
 | المفهوم | ما تعلمناه |
 |---------|-----------|

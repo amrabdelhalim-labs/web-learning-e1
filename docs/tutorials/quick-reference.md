@@ -42,10 +42,12 @@ app/
 ├── context/            ← React Context
 ├── controllers/        ← دوال جلب البيانات
 ├── layouts/            ← تخطيطات الصفحات
-├── __tests__/          ← ملفات الاختبار
+├── tests/              ← ملفات الاختبار (Vitest)
+├── hooks/              ← خطافات مخصصة (useAudioRecorder, useAppContext...)
+├── styles.ts           ← تنسيقات مركزية (fontSize, paperBase, sectionColors)
 ├── config.ts           ← ثوابت وإعدادات
 ├── types.ts            ← أنواع TypeScript
-└── lib/                ← أدوات مشتركة (apiErrors)
+└── lib/                ← أدوات مشتركة (api, apiErrors)
 ```
 
 ---
@@ -88,12 +90,14 @@ function useThemeMode() {
 }
 ```
 
-### Dynamic Import (بدون SSR)
+### خطاف مخصص للتسجيل الصوتي
 
 ```typescript
-const RecordingComponent = dynamic(() => import('react-media-recorder'), {
-  ssr: false, // يعمل في المتصفح فقط
-});
+// app/hooks/useAudioRecorder.ts — يعمل على كل المتصفحات بما فيها Safari/iOS
+import { useAudioRecorder } from '@/app/hooks/useAudioRecorder';
+
+const { status, mediaBlobUrl, startRecording, stopRecording, clearBlobUrl, isSupported, error } =
+  useAudioRecorder();
 ```
 
 ---
@@ -185,8 +189,8 @@ it('يعيد المظهر', () => {
 | `APP_NAME` | `'علمني'` | `config.ts` |
 | `APP_NAME_EN` | `'Teach Me'` | `config.ts` |
 | `OPENAI_MODEL` | `'gpt-4o-mini'` | `config.ts` |
-| `DRAWER_WIDTH` | `260` | `config.ts` |
-| `MAX_CONTENT_WIDTH` | `'md'` | `config.ts` |
+| `DRAWER_WIDTH` | `270` | `config.ts` |
+| `MAX_CONTENT_WIDTH` | `750` | `config.ts` |
 | `THEME_STORAGE_KEY` | `'theme-mode'` | `config.ts` |
 | `LESSONS` | 9 دروس | `config.ts` |
 | `LESSON_SECTIONS` | 4 أقسام | `config.ts` |
@@ -213,6 +217,8 @@ it('يعيد المظهر', () => {
 | `typescript` | 5.9.x | أنواع البيانات |
 | `@mui/material` | 7.x | مكونات التصميم |
 | `openai` | 6.x | SDK الذكاء الاصطناعي |
+| `react-markdown` | 10.x | عرض Markdown كـ React |
+| `remark-gfm` | 4.x | دعم جداول GitHub Markdown |
 | `@emotion/react` | 11.x | CSS-in-JS |
 | `vitest` | 4.x | إطار الاختبارات |
 | `prettier` | 3.x | تنسيق الكود |

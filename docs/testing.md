@@ -11,8 +11,8 @@
 | **إطار الاختبار** | Vitest 4.x |
 | **بيئة الاختبار** | jsdom |
 | **مكتبة الاختبار** | @testing-library/react |
-| **إجمالي الاختبارات** | 55 اختبار |
-| **ملفات الاختبار** | 6 ملفات |
+| **إجمالي الاختبارات** | 87 اختبار |
+| **ملفات الاختبار** | 8 ملفات |
 | **نسبة النجاح** | 100% |
 
 ---
@@ -20,12 +20,14 @@
 ## 📁 بنية ملفات الاختبار
 
 ```
-app/__tests__/
+app/tests/
 ├── setupTests.ts           ← إعداد بيئة الاختبار (localStorage, matchMedia)
-├── config.test.ts          ← اختبار الثوابت والإعدادات (18 اختبار)
+├── config.test.ts          ← اختبار الثوابت والإعدادات (25 اختبار)
 ├── types.test.ts           ← اختبار بنية الأنواع (14 اختبار)
 ├── api.test.ts             ← اختبار دوال API العميل (8 اختبار)
 ├── apiErrors.test.ts       ← اختبار معالجة الأخطاء في الخادم (8 اختبار)
+├── styles.test.ts          ← اختبار التنسيقات المركزية (19 اختبار)
+├── useAudioRecorder.test.ts ← اختبار خطاف التسجيل الصوتي (6 اختبار)
 ├── useThemeMode.test.tsx   ← اختبار خطاف المظهر (3 اختبار)
 └── useAppContext.test.tsx  ← اختبار خطاف سياق التطبيق (4 اختبار)
 ```
@@ -57,7 +59,7 @@ npm run test:coverage
 - **matchMedia mock** — محاكاة استعلامات الوسائط (مطلوب لكشف تفضيل النظام dark/light)
 - **@testing-library/jest-dom** — matchers إضافية مثل `toBeInTheDocument()`
 
-### 2. `config.test.ts` — ثوابت التطبيق (18 اختبار)
+### 2. `config.test.ts` — ثوابت التطبيق (25 اختبار)
 
 | المجموعة | عدد الاختبارات | ما تختبره |
 |----------|----------------|-----------|
@@ -66,6 +68,7 @@ npm run test:coverage
 | أقسام الدروس | 3 | عدد الأقسام (4)، الأقسام المطلوبة، أسماء بالعربية |
 | نصوص التحميل | 2 | تغطية جميع الأقسام، عدم وجود نصوص فارغة |
 | `getRandomLoadingText()` | 3 | إعادة نص صحيح، تغطية كل قسم، اختبار العشوائية |
+| `ASK_ME_SYSTEM_PROMPT` | 7 | نص غير فارغ، اسم التطبيق، عدد الدروس، أسماء الدروس، الأقسام، نص عربي، سياق الميزات |
 
 ### 3. `types.test.ts` — بنية الأنواع (14 اختبار)
 
@@ -120,6 +123,17 @@ npm run test:coverage
 | خطأ خارج Provider | يرمي خطأ واضح إذا استُخدم خارج `AppProvider` |
 | الرسائل السابقة | مصفوفة فارغة بشكل افتراضي |
 
+### 8. `styles.test.ts` — التنسيقات المركزية (16 اختبار)
+
+| المجموعة | عدد الاختبارات | ما تختبره |
+|----------|----------------|-----------|
+| ألوان قسم الإجابات | 4 | خلفية (داكن/فاتح)، حدود، نص، نص خافت |
+| ألوان قسم الأسئلة | 3 | خلفية (داكن/فاتح)، حدود، نص |
+| ألوان قسم الشرح | 3 | خلفية (داكن/فاتح)، حدود، نص |
+| ثوابت التنسيق | 2 | `CONTENT_BOTTOM_MARGIN`، `paperBase` |
+| أنماط Paper المركزية | 4 | `answerPaperSx`، `questionPaperSx`، `lecturePaperSx`، `neutralPaperSx` |
+| مقياس الخطوط `fontSize` | 3 | قيم متجاوبة (`pageTitle`)، أحجام ثابتة، وحدة rem |
+
 ---
 
 ## ⚙️ الإعداد التقني
@@ -136,8 +150,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './app/__tests__/setupTests.ts',
-    include: ['app/__tests__/**/*.test.{ts,tsx}'],
+    setupFiles: './app/tests/setupTests.ts',
+    include: ['app/tests/**/*.test.{ts,tsx}'],
   },
   resolve: {
     alias: { '@': path.resolve(__dirname, '.') },
@@ -167,7 +181,8 @@ export default defineConfig({
 | الأنواع | `types.test.ts` | ⭐⭐⭐ عالية |
 | دوال API | `api.test.ts` | ⭐⭐⭐ عالية |
 | معالجة الأخطاء | `apiErrors.test.ts` | ⭐⭐⭐ عالية |
-| الخطافات المخصصة | `useThemeMode.test.tsx` + `useAppContext.test.tsx` | ⭐⭐ متوسطة |
+| التنسيقات المركزية | `styles.test.ts` | ⭐⭐⭐ عالية |
+| الخطافات المخصصة | `useThemeMode.test.tsx` + `useAppContext.test.tsx` + `useAudioRecorder.test.ts` | ⭐⭐ متوسطة |
 | المكونات (UI) | — | ⭐ مستقبلي |
 | الصفحات الديناميكية | — | ⭐ مستقبلي |
 
@@ -175,7 +190,7 @@ export default defineConfig({
 
 ## 🔧 إضافة اختبار جديد
 
-1. أنشئ ملفًا في `app/__tests__/` بامتداد `.test.ts` أو `.test.tsx`
+1. أنشئ ملفًا في `app/tests/` بامتداد `.test.ts` أو `.test.tsx`
 2. استورد `describe`, `it`, `expect` من `vitest`
 3. اكتب أسماء الاختبارات بالعربية: `it('يجب أن يعيد القيمة الصحيحة', ...)`
 4. شغّل `npm test` للتحقق
@@ -183,4 +198,4 @@ export default defineConfig({
 
 ---
 
-*آخر تحديث: مارس 2026 — 55 اختبار عبر 6 ملفات*
+*آخر تحديث: مارس 2026 — 87 اختبار عبر 8 ملفات*

@@ -124,7 +124,11 @@ export default function SideBar() {
       <MenuToolbar />
       {/* عرض كل درس كعنصر قابل للتوسيع */}
       {LESSONS.map((lesson) => (
-        <CustomizedListItem key={lesson.slug} lesson={lesson} />
+        <CustomizedListItem
+          key={lesson.slug}
+          lectureName={lesson.nameAr}    {/* اسم الدرس بالعربية */}
+          lectureSlug={lesson.slug}      {/* الـ slug للمسار */}
+        />
       ))}
       <MenuFooter />
     </Box>
@@ -165,41 +169,85 @@ export default function SideBar() {
 
 ```typescript
 import { useState } from 'react';
-import { List, ListItemButton, ListItemText, Collapse } from '@mui/material';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
-import Link from 'next/link';
-import { LESSON_SECTIONS } from '@/app/config';
-import type { LessonItem } from '@/app/types';
+import {
+  Divider, List, ListItem, ListItemButton,
+  ListItemText, Collapse, ListItemIcon,
+} from '@mui/material';                           // مكونات MUI للقائمة
+import {
+  ExpandLess, ExpandMore,
+  CastForEducation as CastForEducationIcon,       // أيقونة المحاضرة
+  QuestionAnswer as QuestionAnswerIcon,            // أيقونة الأسئلة
+  RecordVoiceOver as RecordVoiceOverIcon,          // أيقونة المحادثة
+  Translate as TranslateIcon,                      // أيقونة الترجمة
+} from '@mui/icons-material';
+import { useRouter } from 'next/navigation';       // للتنقل بين الصفحات
+import { useAppContext } from '@/app/hooks/useAppContext'; // لإغلاق القائمة على الموبايل
+import { LESSON_SECTIONS } from '@/app/config';     // أسماء الأقسام العربية
+import type { LessonSection } from '@/app/types';
 
-export default function CustomizedListItem({ lesson }: { lesson: LessonItem }) {
-  const [open, setOpen] = useState(false);
+// خريطة أيقونات لكل قسم — تعطي كل عنصر أيقونة مميزة
+const sectionIcons: Record<LessonSection, React.ReactElement> = {
+  lecture: <CastForEducationIcon />,
+  question: <QuestionAnswerIcon />,
+  conversation: <RecordVoiceOverIcon />,
+  translate: <TranslateIcon />,
+};
+
+// الخصائص: اسم الدرس بالعربية والـ slug للمسار
+interface CustomizedListItemProps {
+  lectureName: string;    // "المضارع البسيط"
+  lectureSlug: string;    // "Simple-present"
+}
+
+export default function CustomizedListItem({ lectureName, lectureSlug }: CustomizedListItemProps) {
+  const [open, setOpen] = useState(false);          // حالة التوسيع/الطي
+  const router = useRouter();                       // للتنقل برمجيًا
+  const { setOpenMobile } = useAppContext();        // لإغلاق القائمة عند الضغط
+
+  // تحويل الأقسام لمصفوفة [key, label]
+  const sections = Object.entries(LESSON_SECTIONS) as [LessonSection, string][];
 
   return (
     <>
       {/* العنصر الرئيسي — اسم الدرس */}
-      <ListItemButton onClick={() => setOpen(!open)}>
-        <ListItemText primary={lesson.nameAr} />
-        {open ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
+      <ListItem disablePadding>
+        <ListItemButton onClick={() => setOpen(!open)}>
+          <ListItemText primary={lectureName} primaryTypographyProps={{ fontSize: '14px' }} />
+          {open ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+      </ListItem>
 
       {/* الأقسام الفرعية — تظهر عند التوسيع */}
-      <Collapse in={open}>
-        <List>
-          {Object.entries(LESSON_SECTIONS).map(([key, nameAr]) => (
-            <ListItemButton
-              key={key}
-              component={Link}
-              href={`/${lesson.slug}/${key}`}
-            >
-              <ListItemText primary={nameAr} />
-            </ListItemButton>
-          ))}
-        </List>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        {sections.map(([key, label]) => (
+          <div key={key}>
+            <List component="div" disablePadding>
+              <ListItemButton
+                sx={{ pl: 4 }}               {/* مسافة بادئة للعناصر الفرعية */}
+                onClick={() => {
+                  setOpen(true);              {/* الإبقاء على التوسيع */}
+                  setOpenMobile(false);       {/* ⭐ إغلاق القائمة على الموبايل */}
+                  router.push(`/${lectureSlug}/${key}`); {/* التنقل للصفحة */}
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 36 }}>
+                  {sectionIcons[key]}         {/* الأيقونة المناسبة للقسم */}
+                </ListItemIcon>
+                <ListItemText primary={label} primaryTypographyProps={{ fontSize: '13px' }} />
+              </ListItemButton>
+            </List>
+            <Divider variant="inset" />      {/* خط فاصل بين الأقسام */}
+          </div>
+        ))}
       </Collapse>
     </>
   );
 }
 ```
+
+### لماذا `setOpenMobile(false)`؟
+
+على الشاشات الصغيرة، القائمة الجانبية تظهر كشريحة منزلقة (`variant="temporary"`). بدون هذا السطر، القائمة تبقى مفتوحة بعد الضغط على قسم — وهذا سلوك غير متوقع على الهاتف.
 
 ### مثال على المسارات المُولَّدة:
 
@@ -324,6 +372,9 @@ export default function MainLayout({
 | `Drawer` | قائمة جانبية بنمطين: temporary + permanent |
 | `Collapse` | تأثير توسيع/طي لعناصر القائمة |
 | `Link` (Next.js) | تنقل بدون إعادة تحميل الصفحة |
+| `useRouter` | تنقل برمجي (router.push) |
+| `setOpenMobile` | إغلاق القائمة على الموبايل عند التنقل |
+| `sectionIcons` | أيقونات مميزة لكل قسم دراسي |
 | `Fade` | تأثير ظهور تدريجي |
 | `Snackbar` | عرض تنبيهات مؤقتة للمستخدم |
 | Responsive Design | `display: { xs: 'block', md: 'none' }` |

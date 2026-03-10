@@ -135,16 +135,33 @@ const systemMessage = {
 
 ## 4. صفحة المحادثة (`conversation/page.tsx`)
 
-الأكثر تعقيدًا — تستخدم تسجيل الصوت عبر المتصفح:
+الأكثر تعقيدًا — تستخدم تسجيل الصوت عبر خطاف مخصص يدعم جميع المتصفحات:
 
 ```typescript
-// استيراد ديناميكي لمكتبة التسجيل (لأنها تحتاج المتصفح)
-import dynamic from 'next/dynamic';
-const ReactMediaRecorder = dynamic(
-  () => import('react-media-recorder').then((mod) => mod.ReactMediaRecorder),
-  { ssr: false } // لا تُحمّل على الخادم
-);
+// خطاف مخصص للتسجيل الصوتي — يعمل على Chrome وSafari وiOS
+import { useAudioRecorder } from '@/app/hooks/useAudioRecorder';
+
+// استخدامه داخل المكون:
+const {
+  status,          // حالة التسجيل: 'idle' | 'acquiring_media' | 'recording' | 'stopped'
+  mediaBlobUrl,    // عنوان blob URL للتسجيل (أو null)
+  startRecording,  // بدء التسجيل (يطلب إذن الميكروفون)
+  stopRecording,   // إيقاف التسجيل
+  clearBlobUrl,    // مسح التسجيل السابق
+  isSupported,     // هل المتصفح يدعم التسجيل؟
+  error,           // رسالة خطأ عربية (إن وجدت)
+} = useAudioRecorder();
 ```
+
+### لماذا خطاف مخصص بدلاً من مكتبة خارجية؟
+
+الخطاف يكتشف تلقائيًا أفضل صيغة صوتية مدعومة — هذا يحل مشكلة أجهزة Apple التي لا تدعم WebM:
+
+| المتصفح | الصيغة المستخدمة |
+|---------|-------------------|
+| Chrome/Firefox | `audio/webm;codecs=opus` |
+| Safari/iOS | `audio/mp4` |
+| متصفحات قديمة | `audio/ogg;codecs=opus` |
 
 ### تسلسل المحادثة:
 
@@ -164,17 +181,14 @@ const ReactMediaRecorder = dynamic(
 5. GPT يُقيّم النطق ويعطي ملاحظات
 ```
 
-**لماذا `dynamic()` مع `ssr: false`؟**
-
-`react-media-recorder` يستخدم `navigator.mediaDevices` الذي لا يعمل إلا في المتصفح. لو حاول Next.js تحميله على الخادم سيحدث خطأ.
+**الخطاف يستخدم** `navigator.mediaDevices.getUserMedia` مباشرة — يطلب إذن الميكروفون ويعالج الرفض برسائل عربية.
 
 التشبيه: هذا مثل **ميكروفون لا يعمل إلا عندما تقف أمامه** — لا يمكنك اختباره عن بُعد.
 
-| المكتبة | الدور |
+| الأداة | الدور |
 |---------|-------|
-| `react-media-recorder` | تسجيل الصوت من المتصفح |
-| `next/dynamic` | استيراد مكونات فقط في المتصفح |
-| Whisper API | تحويل الصوت لنص |
+| `useAudioRecorder` (خطاف مخصص) | تسجيل الصوت عبر MediaRecorder API مع دعم كل المتصفحات |
+| Whisper API | تحويل الصوت لنص (speech-to-text) |
 
 ---
 
@@ -220,18 +234,16 @@ const evaluateTranslation = async () => {
 في Next.js 16، `params` أصبحت `Promise` — يجب حلها أولاً:
 
 ```typescript
+import { use } from 'react'; // React 19 توفر use() لحل Promises
+
 export default function Page({ params }: SlugPageParams) {
-  useEffect(() => {
-    params.then(({ slug }) => {
-      // استخدام slug هنا
-      console.log('الدرس:', slug);
-    });
-  }, [params]);
+  const { slug } = use(params); // حل Promise واستخراج الـ slug مباشرة
+  // استخدام slug هنا (مثلاً: 'Simple-present')
 }
 
 // بنية SlugPageParams:
 interface SlugPageParams {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>; // في Next.js 16، params أصبحت Promise
 }
 ```
 
@@ -243,10 +255,10 @@ interface SlugPageParams {
 |---------|-----------|
 | `[slug]` | مسارات ديناميكية تتغير حسب الدرس |
 | System Prompt | توجيه GPT ليتصرف كمعلم |
-| `dynamic()` | تحميل مكونات فقط في المتصفح (SSR: false) |
+| `useAudioRecorder` | خطاف مخصص للتسجيل الصوتي عبر كل المتصفحات |
 | Whisper | تحويل الكلام لنص عبر OpenAI |
 | اتجاه الترجمة | تبديل بين EN↔AR ديناميكيًا |
-| `params: Promise` | ميزة جديدة في Next.js 16 |
+| `use(params)` | React 19 لحل Promise معاملات الصفحة |
 | `getRandomLoadingText()` | نصوص تحميل عشوائية تناسب كل قسم |
 
 ---

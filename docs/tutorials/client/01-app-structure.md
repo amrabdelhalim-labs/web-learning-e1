@@ -14,7 +14,9 @@ app/
 ├── providers.tsx       ← مزودو الخدمات (كهرباء، ماء، إنترنت)
 ├── page.tsx            ← الصفحة الرئيسية (الردهة)
 ├── config.ts           ← دليل الإعدادات
+├── styles.ts           ← تنسيقات مركزية (أحجام خطوط، ألوان)
 ├── types.ts            ← تعريف الأنواع
+├── hooks/              ← خطافات مخصصة (useAudioRecorder...)
 └── [slug]/             ← طوابق ديناميكية (حسب الدرس)
     ├── lecture/page.tsx
     ├── question/page.tsx
@@ -187,7 +189,69 @@ export type ThemeMode = 'light' | 'dark';
 
 ---
 
-## 6. ملف `globals.css`
+## 6. التنسيقات المركزية (`styles.ts`)
+
+ملف `styles.ts` يجمع كل التنسيقات المشتركة — أحجام الخطوط، ألوان الأقسام، وأنماط paper:
+
+```typescript
+// أحجام خطوط متجاوبة — تتغير حسب حجم الشاشة تلقائيًا
+export const fontSize = {
+  body: { xs: '14px', sm: '16px' },     // النص العادي
+  heading: { xs: '18px', sm: '22px' },  // العناوين
+  small: { xs: '12px', sm: '13px' },    // النص الصغير
+  large: { xs: '16px', sm: '18px' },    // النص الكبير
+};
+
+// ألوان مميزة لكل قسم دراسي
+export const sectionColors = {
+  lecture: '#5B8CFF',      // أزرق — المحاضرة
+  question: '#66BB6A',     // أخضر — الأسئلة
+  conversation: '#FF7043',  // برتقالي — المحادثة
+  translate: '#AB47BC',     // بنفسجي — الترجمة
+};
+
+// الأساس المشترك لكل صناديق paper
+export const paperBase = {
+  p: { xs: 1.5, sm: 2.5 }, // حشوة متجاوبة — أصغر على الموبايل
+  mb: 2,                     // هامش سفلي
+  whiteSpace: 'pre-wrap',   // الحفاظ على الأسطر الجديدة
+};
+```
+
+| التصدير | الوظيفة |
+|---------|---------|
+| `fontSize` | أحجام خطوط متجاوبة (xs/sm) |
+| `sectionColors` | ألوان مميزة لكل قسم |
+| `paperBase` | أساس مشترك لكل Paper |
+| `answerPaperSx()` | أنماط إجابة الذكاء الاصطناعي (حسب القسم) |
+| `questionPaperSx()` | أنماط سؤال المستخدم |
+| `neutralPaperSx` | أنماط محايدة (بدون لون قسم) |
+
+---
+
+## 7. خطافات مخصصة (`hooks/`)
+
+مجلد `hooks/` يحتوي على خطافات React مخصصة قابلة لإعادة الاستخدام:
+
+```
+hooks/
+├── useAppContext.ts       ← وصول آمن لحالة التطبيق
+├── useThemeMode.ts        ← وصول آمن لوضع المظهر
+└── useAudioRecorder.ts    ← تسجيل صوتي متوافق مع كل المتصفحات
+```
+
+```typescript
+// useAudioRecorder — خطاف مخصص بديل عن مكتبات خارجية
+// يكتشف تلقائيًا أفضل صيغة صوتية:
+//   Chrome → audio/webm;codecs=opus
+//   Safari → audio/mp4
+//   قديم  → audio/ogg
+const { status, mediaBlobUrl, startRecording, stopRecording } = useAudioRecorder();
+```
+
+---
+
+## 8. ملف `globals.css`
 
 يحدد المتغيرات CSS العامة ويضبط الهيكل الأساسي:
 
@@ -210,7 +274,7 @@ html, body {
 
 ---
 
-## 7. خلاصة
+## 9. خلاصة
 
 | المفهوم | ما تعلمناه |
 |---------|-----------|
@@ -219,6 +283,8 @@ html, body {
 | `providers.tsx` | تجميع المزودين بترتيب صحيح |
 | `config.ts` | ثوابت مركزية لتجنب التكرار |
 | `types.ts` | تعريف أشكال البيانات لأمان الكود |
+| `styles.ts` | تنسيقات مركزية متجاوبة (fontSize, paperBase) |
+| `hooks/` | خطافات مخصصة قابلة لإعادة الاستخدام |
 | `as const` | يجعل القيم readonly في TypeScript |
 
 ---

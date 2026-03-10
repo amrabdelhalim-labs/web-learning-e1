@@ -20,8 +20,8 @@
 - الوصول لحالة التطبيق عبر `useAppContext()` hook — لا direct context import
 - جميع دوال API في `app/lib/api.ts` — لا fetch calls inline في الصفحات
 - استخدم الأنواع المُعرَّفة في `app/types.ts` — لا inline type definitions
-- جميع الثوابت في `app/config.ts` — لا hardcoded strings/numbers منتشرة
-- دوال معالجة الأخطاء في `app/lib/apiErrors.ts` — رسائل عربية موحَّدة
+- جميع الثوابت في `app/config.ts` — لا hardcoded strings/numbers منتشرة- جميع التنسيقات المشتركة في `app/styles.ts` — لا تكرار fontSize/padding في الصفحات
+- تسجيل الصوت عبر `useAudioRecorder` hook — لا مكتبات خارجية للتسجيل- دوال معالجة الأخطاء في `app/lib/apiErrors.ts` — رسائل عربية موحَّدة
 - استخدم `MainLayout` wrapper لجميع صفحات المحتوى — ليس custom layout code
 - الأيقونات من `@mui/icons-material` — لا صور خارجية إلا للضرورة القصوى
 
@@ -249,8 +249,8 @@ npm run build
 
 | المعيار | القيمة |
 |---------|--------|
-| **إجمالي الاختبارات** | 55 |
-| **ملفات الاختبار** | 6 |
+| **إجمالي الاختبارات** | 87 |
+| **ملفات الاختبار** | 8 |
 | **إطار الاختبار** | Vitest 4.x |
 | **بيئة DOM** | jsdom |
 
@@ -264,6 +264,8 @@ npm run build
 | `apiErrors.test.ts` | 8 | معالجة أخطاء OpenAI |
 | `useThemeMode.test.tsx` | 3 | خطاف المظهر |
 | `useAppContext.test.tsx` | 4 | خطاف حالة التطبيق |
+| `styles.test.ts` | 19 | التنسيقات المركزية (fontSize, paperBase, sectionColors) |
+| `useAudioRecorder.test.ts` | 6 | خطاف التسجيل الصوتي |
 
 ### أوامر التشغيل
 
