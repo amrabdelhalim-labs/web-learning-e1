@@ -27,7 +27,9 @@
     "openai": "^6.16.0",
     "react": "19.2.2",
     "react-dom": "19.2.2",
+    "react-markdown": "^10.1.0",
     "react-media-recorder": "^1.7.2",
+    "remark-gfm": "^4.0.1",
     "stylis": "^4.3.6"
   },
   "devDependencies": {

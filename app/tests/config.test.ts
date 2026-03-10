@@ -10,6 +10,7 @@ import {
   LESSON_SECTIONS,
   LOADING_TEXTS,
   getRandomLoadingText,
+  ASK_ME_SYSTEM_PROMPT,
 } from '@/app/config';
 
 describe('ثوابت التطبيق (App Constants)', () => {
@@ -133,5 +134,43 @@ describe('getRandomLoadingText()', () => {
     }
     // مع 7 نصوص و20 محاولة، يجب أن نحصل على أكثر من نتيجة واحدة
     expect(results.size).toBeGreaterThan(1);
+  });
+});
+
+describe('الأمر الأولي لاسألني (ASK_ME_SYSTEM_PROMPT)', () => {
+  it('يجب أن يكون نصًا غير فارغ', () => {
+    expect(ASK_ME_SYSTEM_PROMPT).toBeTruthy();
+    expect(typeof ASK_ME_SYSTEM_PROMPT).toBe('string');
+  });
+
+  it('يجب أن يحتوي على اسم التطبيق', () => {
+    expect(ASK_ME_SYSTEM_PROMPT).toContain(APP_NAME);
+    expect(ASK_ME_SYSTEM_PROMPT).toContain(APP_NAME_EN);
+  });
+
+  it('يجب أن يحتوي على عدد الدروس', () => {
+    expect(ASK_ME_SYSTEM_PROMPT).toContain(String(LESSONS.length));
+  });
+
+  it('يجب أن يحتوي على أسماء جميع الدروس', () => {
+    LESSONS.forEach((lesson) => {
+      expect(ASK_ME_SYSTEM_PROMPT).toContain(lesson.nameAr);
+      expect(ASK_ME_SYSTEM_PROMPT).toContain(lesson.slug);
+    });
+  });
+
+  it('يجب أن يحتوي على أسماء جميع الأقسام', () => {
+    Object.values(LESSON_SECTIONS).forEach((sectionName) => {
+      expect(ASK_ME_SYSTEM_PROMPT).toContain(sectionName);
+    });
+  });
+
+  it('يجب أن يحتوي على تعليمات الرد بالعربية', () => {
+    expect(ASK_ME_SYSTEM_PROMPT).toMatch(/[\u0600-\u06FF]/);
+  });
+
+  it('يجب أن يحتوي على سياق حول ميزات التطبيق', () => {
+    expect(ASK_ME_SYSTEM_PROMPT).toContain('اسألني');
+    expect(ASK_ME_SYSTEM_PROMPT).toContain('A2');
   });
 });
