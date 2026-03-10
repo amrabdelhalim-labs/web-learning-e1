@@ -17,6 +17,7 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 import TranslateIcon from '@mui/icons-material/Translate';
 import { useRouter } from 'next/navigation';
+import { useAppContext } from '@/app/hooks/useAppContext';
 import { LESSON_SECTIONS } from '@/app/config';
 import type { LessonSection } from '@/app/types';
 
@@ -35,6 +36,7 @@ const sectionIcons: Record<LessonSection, React.ReactElement> = {
 export default function CustomizedListItem({ lectureName, lectureSlug }: CustomizedListItemProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { setOpenMobile } = useAppContext();
 
   const sections = Object.entries(LESSON_SECTIONS) as [LessonSection, string][];
 
@@ -54,6 +56,7 @@ export default function CustomizedListItem({ lectureName, lectureSlug }: Customi
                 sx={{ pl: 4 }}
                 onClick={() => {
                   setOpen(true);
+                  setOpenMobile(false);
                   router.push(`/${lectureSlug}/${key}`);
                 }}
               >

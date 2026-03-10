@@ -37,8 +37,10 @@ export async function getTranscription(
 ): Promise<ApiResponse<TranscriptionData>> {
   try {
     const blob = await fetch(mediaBlobUrl).then((r) => r.blob());
+    const ext = blob.type.includes('mp4') ? 'mp4' : blob.type.includes('ogg') ? 'ogg' : 'webm';
+    const file = new File([blob], `recording.${ext}`, { type: blob.type });
     const formData = new FormData();
-    formData.append('file', blob);
+    formData.append('file', file);
 
     const response = await fetch('/api/speech-to-text', {
       method: 'POST',

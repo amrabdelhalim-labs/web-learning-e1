@@ -13,11 +13,19 @@ import {
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
-import dynamic from 'next/dynamic';
 import MainLayout from '@/app/layouts/MainLayout';
 import { getChatCompletion, getTextCompletion, getTranscription } from '@/app/lib/api';
 import { useAppContext } from '@/app/hooks/useAppContext';
+import { useAudioRecorder } from '@/app/hooks/useAudioRecorder';
 import { getRandomLoadingText } from '@/app/config';
+import MarkdownRenderer from '@/app/components/MarkdownRenderer';
+import {
+  CONTENT_BOTTOM_MARGIN,
+  questionPaperSx,
+  answerPaperSx,
+  sectionColors,
+  fontSize,
+} from '@/app/styles';
 import type {
   SlugPageParams,
   ChatMessage,
@@ -27,12 +35,6 @@ import type {
   TranscriptionData,
 } from '@/app/types';
 
-// تحميل ReactMediaRecorder فقط على جانب العميل
-const ReactMediaRecorder = dynamic(
-  () => import('react-media-recorder').then((mod) => mod.ReactMediaRecorder),
-  { ssr: false }
-);
-
 export default function ConversationPage({ params }: SlugPageParams) {
   const { slug } = use(params);
   const theme = useTheme();
@@ -41,13 +43,16 @@ export default function ConversationPage({ params }: SlugPageParams) {
   const [sentence, setSentence] = useState('');
   const [assistantAnswer, setAssistantAnswer] = useState('');
   const [transcriptionLoading, setTranscriptionLoading] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   const hasInitialized = useRef(false);
-  const clearBlobUrlRef = useRef<(() => void) | null>(null);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const {
+    status: recorderStatus,
+    mediaBlobUrl,
+    startRecording,
+    stopRecording,
+    clearBlobUrl,
+    isSupported: isRecorderSupported,
+    error: recorderError,
+  } = useAudioRecorder();
 
   const {
     setContextPreviousMessage,
@@ -103,7 +108,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
   };
 
   const getSentence = async () => {
-    if (clearBlobUrlRef.current) clearBlobUrlRef.current();
+    clearBlobUrl();
     setAssistantAnswer('');
     setShowFooterButton(false);
     setLoading(true);
@@ -116,7 +121,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
   };
 
   const getNewSentence = async () => {
-    if (clearBlobUrlRef.current) clearBlobUrlRef.current();
+    clearBlobUrl();
     setAssistantAnswer('');
     setSentence('');
     setShowFooterButton(false);
@@ -190,8 +195,8 @@ export default function ConversationPage({ params }: SlugPageParams) {
       loadingText={getRandomLoadingText('conversation')}
     >
       {message && (
-        <CardContent sx={{ mb: 14, textAlign: 'center' }}>
-          <Typography component="p" sx={{ color: 'text.secondary' }}>
+        <CardContent sx={{ mb: CONTENT_BOTTOM_MARGIN, textAlign: 'center' }}>
+          <Typography component="p" sx={{ fontSize: fontSize.secondary, color: 'text.secondary' }}>
             حاول قراءة هذه الجملة:
           </Typography>
 
@@ -199,20 +204,16 @@ export default function ConversationPage({ params }: SlugPageParams) {
             elevation={0}
             sx={{
               mt: 3,
-              p: 2.5,
-              borderRadius: 2,
-              backgroundColor: theme.palette.mode === 'dark' ? '#1a237e' : '#f3e5f5',
-              border: 2,
-              borderColor: '#3f51b5',
+              ...questionPaperSx(theme.palette.mode),
             }}
           >
             <Typography
               sx={{
-                fontSize: '18px',
+                fontSize: fontSize.highlight,
                 textAlign: 'center',
                 direction: 'ltr',
                 fontWeight: 500,
-                color: theme.palette.mode === 'dark' ? '#c5cae9' : '#4a148c',
+                color: sectionColors.question.text(theme.palette.mode),
               }}
               component="p"
             >
@@ -220,79 +221,75 @@ export default function ConversationPage({ params }: SlugPageParams) {
             </Typography>
           </Paper>
 
-          {/* Media Recorder */}
-          {isClient && ReactMediaRecorder && (
-            <ReactMediaRecorder
-              audio
-              render={({ status, startRecording, stopRecording, mediaBlobUrl, clearBlobUrl }) => {
-                clearBlobUrlRef.current = clearBlobUrl;
+          {/* Audio Recorder */}
+          {isRecorderSupported && (
+            <>
+              <Box sx={{ mt: 4 }}>
+                {recorderStatus === 'recording' ? (
+                  <IconButton
+                    onClick={stopRecording}
+                    sx={{
+                      backgroundColor: 'error.light',
+                      '&:hover': {
+                        backgroundColor: 'error.main',
+                      },
+                      p: 2,
+                    }}
+                  >
+                    <StopCircleIcon sx={{ fontSize: 40, color: 'error.dark' }} />
+                  </IconButton>
+                ) : (
+                  <IconButton
+                    onClick={startRecording}
+                    disabled={recorderStatus === 'acquiring_media'}
+                    sx={{
+                      backgroundColor: 'primary.light',
+                      '&:hover': {
+                        backgroundColor: 'primary.main',
+                        '& svg': { color: 'white' },
+                      },
+                      p: 2,
+                    }}
+                  >
+                    <MicIcon sx={{ fontSize: 40, color: 'primary.dark' }} />
+                  </IconButton>
+                )}
+                <Typography
+                  sx={{
+                    mt: 1,
+                    fontSize: fontSize.caption,
+                    color: recorderError ? 'error.main' : 'text.secondary',
+                  }}
+                >
+                  {recorderError
+                    ? recorderError
+                    : recorderStatus === 'recording'
+                      ? 'جاري التسجيل... اضغط للإيقاف'
+                      : recorderStatus === 'acquiring_media'
+                        ? 'جاري تجهيز الميكروفون...'
+                        : 'اضغط لبدء التسجيل'}
+                </Typography>
+              </Box>
 
-                return (
-                  <>
-                    <Box sx={{ mt: 4 }}>
-                      {status === 'recording' ? (
-                        <IconButton
-                          onClick={stopRecording}
-                          sx={{
-                            backgroundColor: 'error.light',
-                            '&:hover': {
-                              backgroundColor: 'error.main',
-                            },
-                            p: 2,
-                          }}
-                        >
-                          <StopCircleIcon sx={{ fontSize: 40, color: 'error.dark' }} />
-                        </IconButton>
+              {mediaBlobUrl && (
+                <Box sx={{ mt: 4 }}>
+                  <audio src={mediaBlobUrl} controls style={{ borderRadius: '8px' }} />
+                  <Box sx={{ mt: 2 }}>
+                    <Button
+                      variant="contained"
+                      onClick={() => fetchText(mediaBlobUrl)}
+                      disabled={transcriptionLoading}
+                    >
+                      {transcriptionLoading ? (
+                        <CircularProgress size={20} sx={{ color: 'white' }} />
                       ) : (
-                        <IconButton
-                          onClick={startRecording}
-                          sx={{
-                            backgroundColor: 'primary.light',
-                            '&:hover': {
-                              backgroundColor: 'primary.main',
-                              '& svg': { color: 'white' },
-                            },
-                            p: 2,
-                          }}
-                        >
-                          <MicIcon sx={{ fontSize: 40, color: 'primary.dark' }} />
-                        </IconButton>
+                        'تأكد من الجملة'
                       )}
-                      <Typography
-                        sx={{
-                          mt: 1,
-                          fontSize: '13px',
-                          color: 'text.secondary',
-                        }}
-                      >
-                        {status === 'recording'
-                          ? 'جاري التسجيل... اضغط للإيقاف'
-                          : 'اضغط لبدء التسجيل'}
-                      </Typography>
-                    </Box>
-
-                    {mediaBlobUrl && (
-                      <Box sx={{ mt: 4 }}>
-                        <audio src={mediaBlobUrl} controls style={{ borderRadius: '8px' }} />
-                        <Box sx={{ mt: 2 }}>
-                          <Button
-                            variant="contained"
-                            onClick={() => fetchText(mediaBlobUrl)}
-                            disabled={transcriptionLoading}
-                          >
-                            {transcriptionLoading ? (
-                              <CircularProgress size={20} sx={{ color: 'white' }} />
-                            ) : (
-                              'تأكد من الجملة'
-                            )}
-                          </Button>
-                        </Box>
-                      </Box>
-                    )}
-                  </>
-                );
-              }}
-            />
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+            </>
           )}
 
           {assistantAnswer && (
@@ -300,23 +297,22 @@ export default function ConversationPage({ params }: SlugPageParams) {
               elevation={0}
               sx={{
                 mt: 4,
-                p: 2.5,
-                borderRadius: 2,
-                backgroundColor: theme.palette.mode === 'dark' ? '#1b5e20' : '#e8f5e9',
-                border: 2,
-                borderColor: '#2e7d32',
+                ...answerPaperSx(theme.palette.mode),
               }}
             >
               <Typography
                 sx={{
-                  fontSize: '16px',
+                  fontSize: fontSize.body,
                   lineHeight: 1.8,
                   mb: 2,
-                  color: theme.palette.mode === 'dark' ? '#c8e6c9' : '#1b5e20',
+                  color: sectionColors.answer.text(theme.palette.mode),
                 }}
-                component="p"
+                component="div"
               >
-                {assistantAnswer}
+                <MarkdownRenderer
+                  content={assistantAnswer}
+                  color={sectionColors.answer.text(theme.palette.mode)}
+                />
               </Typography>
               {sentence && (
                 <Box
@@ -324,13 +320,13 @@ export default function ConversationPage({ params }: SlugPageParams) {
                     mt: 2,
                     pt: 2,
                     borderTop: 1,
-                    borderColor: '#2e7d32',
+                    borderColor: sectionColors.answer.border,
                   }}
                 >
                   <Typography
                     sx={{
-                      fontSize: '13px',
-                      color: theme.palette.mode === 'dark' ? '#b0d4b8' : '#558b2f',
+                      fontSize: fontSize.caption,
+                      color: sectionColors.answer.subtleText(theme.palette.mode),
                     }}
                     component="p"
                   >
@@ -338,12 +334,12 @@ export default function ConversationPage({ params }: SlugPageParams) {
                   </Typography>
                   <Typography
                     sx={{
-                      fontSize: '16px',
+                      fontSize: fontSize.body,
                       direction: 'ltr',
                       textAlign: 'center',
                       mt: 1,
                       fontWeight: 500,
-                      color: theme.palette.mode === 'dark' ? '#e8f5e9' : '#1b5e20',
+                      color: sectionColors.answer.text(theme.palette.mode),
                     }}
                     component="p"
                   >
