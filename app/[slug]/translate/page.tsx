@@ -18,6 +18,14 @@ import MainLayout from '@/app/layouts/MainLayout';
 import { getChatCompletion } from '@/app/lib/api';
 import { useAppContext } from '@/app/hooks/useAppContext';
 import { getRandomLoadingText } from '@/app/config';
+import MarkdownRenderer from '@/app/components/MarkdownRenderer';
+import {
+  CONTENT_BOTTOM_MARGIN,
+  answerPaperSx,
+  sectionColors,
+  neutralPaperSx,
+  fontSize,
+} from '@/app/styles';
 import type { SlugPageParams, ChatMessage, ApiResponse, ChatCompletionData } from '@/app/types';
 
 export default function TranslatePage({ params }: SlugPageParams) {
@@ -198,7 +206,7 @@ export default function TranslatePage({ params }: SlugPageParams) {
       loadingText={getRandomLoadingText('translate')}
     >
       {message && (
-        <CardContent sx={{ mb: 14, textAlign: 'center' }}>
+        <CardContent sx={{ mb: CONTENT_BOTTOM_MARGIN, textAlign: 'center' }}>
           {/* زر عكس اتجاه الترجمة */}
           <Box
             sx={{
@@ -239,16 +247,12 @@ export default function TranslatePage({ params }: SlugPageParams) {
             elevation={0}
             sx={{
               mt: 3,
-              p: 2.5,
-              borderRadius: 2,
-              backgroundColor: 'action.hover',
-              border: 1,
-              borderColor: 'divider',
+              ...neutralPaperSx,
             }}
           >
             <Typography
               sx={{
-                fontSize: '18px',
+                fontSize: fontSize.highlight,
                 textAlign: 'center',
                 direction: isEnglishToArabic ? 'ltr' : 'rtl',
                 fontWeight: 500,
@@ -287,30 +291,25 @@ export default function TranslatePage({ params }: SlugPageParams) {
               elevation={0}
               sx={{
                 mt: 3,
-                p: 2.5,
-                borderRadius: 2,
-                backgroundColor: theme.palette.mode === 'dark' ? '#1b5e20' : '#e8f5e9',
-                border: 2,
-                borderColor: '#2e7d32',
+                ...answerPaperSx(theme.palette.mode),
               }}
             >
               {translateLoading ? (
-                <CircularProgress size={30} sx={{ color: '#2e7d32' }} />
+                <CircularProgress size={30} sx={{ color: sectionColors.answer.border }} />
               ) : (
                 <Typography
                   sx={{
-                    fontSize: '16px',
+                    fontSize: fontSize.body,
                     lineHeight: 1.8,
-                    color: theme.palette.mode === 'dark' ? '#c8e6c9' : '#1b5e20',
+                    color: sectionColors.answer.text(theme.palette.mode),
                     fontWeight: 500,
                   }}
                   component="div"
                 >
-                  {assistantAnswer?.split(/\n/).map((line, i) => (
-                    <Box key={i} component="p" sx={{ my: 1 }}>
-                      {line}
-                    </Box>
-                  ))}
+                  <MarkdownRenderer
+                    content={assistantAnswer}
+                    color={sectionColors.answer.text(theme.palette.mode)}
+                  />
                 </Typography>
               )}
             </Paper>

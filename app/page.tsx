@@ -18,7 +18,9 @@ import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 import TranslateIcon from '@mui/icons-material/Translate';
 import { getChatCompletion } from '@/app/lib/api';
 import { useAppContext } from '@/app/hooks/useAppContext';
-import { getRandomLoadingText, APP_NAME } from '@/app/config';
+import { getRandomLoadingText, APP_NAME, ASK_ME_SYSTEM_PROMPT } from '@/app/config';
+import MarkdownRenderer from '@/app/components/MarkdownRenderer';
+import { CONTENT_BOTTOM_MARGIN, neutralPaperSx, paperBase, fontSize } from '@/app/styles';
 
 const features = [
   { icon: <SchoolIcon color="primary" />, text: 'شرح للدرس بشكل كامل' },
@@ -54,6 +56,7 @@ export default function HomePage() {
 
     try {
       const response = await getChatCompletion([
+        { role: 'system', content: ASK_ME_SYSTEM_PROMPT },
         ...contextPreviousMessage,
         { role: 'user', content: messageValue },
       ]);
@@ -83,8 +86,11 @@ export default function HomePage() {
   return (
     <MainLayout loading={loading} loadingText={getRandomLoadingText('home')}>
       {messages.length === 0 ? (
-        <CardContent sx={{ mb: 14 }}>
-          <Typography component="h1" sx={{ fontSize: '22px', fontWeight: 'bold', mb: 2 }}>
+        <CardContent sx={{ mb: CONTENT_BOTTOM_MARGIN }}>
+          <Typography
+            component="h1"
+            sx={{ fontSize: fontSize.pageTitle, fontWeight: 'bold', mb: 2 }}
+          >
             تطبيق {APP_NAME} لتعليم اللغة الإنجليزية
           </Typography>
           <Typography component="p" sx={{ color: 'text.secondary', mb: 2 }}>
@@ -107,9 +113,8 @@ export default function HomePage() {
           <Paper
             elevation={0}
             sx={{
-              p: 2.5,
+              ...paperBase,
               mt: 2,
-              borderRadius: 2,
               backgroundColor: 'action.hover',
             }}
           >
@@ -125,28 +130,14 @@ export default function HomePage() {
           </Paper>
         </CardContent>
       ) : (
-        <CardContent sx={{ mb: 14 }}>
+        <CardContent sx={{ mb: CONTENT_BOTTOM_MARGIN }}>
           {messages
             .filter((msg) => msg.role === 'assistant')
             .slice(-1)
             .map((msg, index) => (
-              <Paper
-                key={index}
-                elevation={0}
-                sx={{
-                  p: 2.5,
-                  borderRadius: 2,
-                  backgroundColor: 'action.hover',
-                  border: 1,
-                  borderColor: 'divider',
-                }}
-              >
-                <Typography sx={{ fontSize: '16px', lineHeight: 1.8 }} component="div">
-                  {msg.content.split(/\n/).map((line, i) => (
-                    <p key={i} style={{ margin: '8px 0' }}>
-                      {line}
-                    </p>
-                  ))}
+              <Paper key={index} elevation={0} sx={neutralPaperSx}>
+                <Typography sx={{ fontSize: fontSize.body, lineHeight: 1.8 }} component="div">
+                  <MarkdownRenderer content={msg.content} />
                 </Typography>
               </Paper>
             ))}

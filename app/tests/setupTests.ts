@@ -25,7 +25,7 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 const hasVitest = typeof (globalThis as any).vi !== 'undefined';
 
 if (hasVitest) {
-  const { vi } = (globalThis as any);
+  const { vi } = globalThis as any;
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation((query: string) => ({
@@ -55,4 +55,3 @@ if (hasVitest) {
     }),
   });
 }
-

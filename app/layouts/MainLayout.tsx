@@ -17,6 +17,7 @@ import ToolBar from '@/app/components/ToolBar/ToolBar';
 import Footer from '@/app/components/Footer/Footer';
 import { useAppContext } from '@/app/hooks/useAppContext';
 import { MAX_CONTENT_WIDTH } from '@/app/config';
+import { fontSize } from '@/app/styles';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -41,7 +42,7 @@ export default function MainLayout({
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           mx: 'auto',
           maxWidth: MAX_CONTENT_WIDTH,
@@ -63,7 +64,7 @@ export default function MainLayout({
               <Typography
                 component="p"
                 sx={{
-                  fontSize: '15px',
+                  fontSize: fontSize.secondary,
                   color: 'text.secondary',
                   textAlign: 'center',
                   mt: 3,

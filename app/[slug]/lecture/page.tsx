@@ -6,6 +6,8 @@ import MainLayout from '@/app/layouts/MainLayout';
 import { getChatCompletion } from '@/app/lib/api';
 import { useAppContext } from '@/app/hooks/useAppContext';
 import { getRandomLoadingText } from '@/app/config';
+import MarkdownRenderer from '@/app/components/MarkdownRenderer';
+import { CONTENT_BOTTOM_MARGIN, lecturePaperSx, sectionColors, fontSize } from '@/app/styles';
 import type { SlugPageParams } from '@/app/types';
 
 export default function LecturePage({ params }: SlugPageParams) {
@@ -74,35 +76,24 @@ export default function LecturePage({ params }: SlugPageParams) {
       loadingText={getRandomLoadingText('lecture')}
     >
       {messages.length > 0 && (
-        <CardContent sx={{ mb: 14 }}>
+        <CardContent sx={{ mb: CONTENT_BOTTOM_MARGIN }}>
           {messages
             .filter((msg) => msg.role === 'assistant')
             .slice(-1)
             .map((msg, index) => (
-              <Paper
-                key={index}
-                elevation={0}
-                sx={{
-                  p: 2.5,
-                  borderRadius: 2,
-                  backgroundColor: theme.palette.mode === 'dark' ? '#0d1f29' : '#f0f4f8',
-                  border: 2,
-                  borderColor: theme.palette.mode === 'dark' ? '#1976d2' : '#1565c0',
-                }}
-              >
+              <Paper key={index} elevation={0} sx={lecturePaperSx(theme.palette.mode)}>
                 <Typography
                   sx={{
-                    fontSize: '16px',
+                    fontSize: fontSize.body,
                     lineHeight: 1.8,
-                    color: theme.palette.mode === 'dark' ? '#b3e5fc' : '#0d47a1',
+                    color: sectionColors.lecture.text(theme.palette.mode),
                   }}
                   component="div"
                 >
-                  {msg.content.split(/\n/).map((line, i) => (
-                    <Box key={i} component="p" sx={{ my: 1 }}>
-                      {line}
-                    </Box>
-                  ))}
+                  <MarkdownRenderer
+                    content={msg.content}
+                    color={sectionColors.lecture.text(theme.palette.mode)}
+                  />
                 </Typography>
               </Paper>
             ))}

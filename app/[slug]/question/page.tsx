@@ -14,6 +14,14 @@ import MainLayout from '@/app/layouts/MainLayout';
 import { getChatCompletion } from '@/app/lib/api';
 import { useAppContext } from '@/app/hooks/useAppContext';
 import { getRandomLoadingText } from '@/app/config';
+import MarkdownRenderer from '@/app/components/MarkdownRenderer';
+import {
+  CONTENT_BOTTOM_MARGIN,
+  questionPaperSx,
+  answerPaperSx,
+  sectionColors,
+  fontSize,
+} from '@/app/styles';
 import type { SlugPageParams, ChatMessage } from '@/app/types';
 
 export default function QuestionPage({ params }: SlugPageParams) {
@@ -172,25 +180,21 @@ export default function QuestionPage({ params }: SlugPageParams) {
       loadingText={getRandomLoadingText('question')}
     >
       {question && (
-        <CardContent sx={{ textAlign: 'center', mb: 14 }}>
+        <CardContent sx={{ textAlign: 'center', mb: CONTENT_BOTTOM_MARGIN }}>
           <Paper
             elevation={0}
             sx={{
-              p: 2.5,
+              ...questionPaperSx(theme.palette.mode),
               mb: 3,
-              borderRadius: 2,
-              backgroundColor: theme.palette.mode === 'dark' ? '#1a237e' : '#f3e5f5',
-              border: 2,
-              borderColor: '#3f51b5',
             }}
           >
             <Typography
               component="h3"
               sx={{
                 direction: 'ltr',
-                fontSize: '16px',
+                fontSize: fontSize.body,
                 fontWeight: 600,
-                color: theme.palette.mode === 'dark' ? '#c5cae9' : '#4a148c',
+                color: sectionColors.question.text(theme.palette.mode),
               }}
             >
               {question}
@@ -227,22 +231,22 @@ export default function QuestionPage({ params }: SlugPageParams) {
                 <Paper
                   elevation={0}
                   sx={{
+                    ...answerPaperSx(theme.palette.mode),
                     p: 2,
-                    borderRadius: 2,
-                    backgroundColor: theme.palette.mode === 'dark' ? '#1b5e20' : '#e8f5e9',
-                    border: 2,
-                    borderColor: '#2e7d32',
                   }}
                 >
                   <Typography
                     component="span"
                     sx={{
-                      fontSize: '15px',
-                      color: theme.palette.mode === 'dark' ? '#c8e6c9' : '#1b5e20',
+                      fontSize: fontSize.secondary,
+                      color: sectionColors.answer.text(theme.palette.mode),
                       fontWeight: 500,
                     }}
                   >
-                    {assistantAnswer}
+                    <MarkdownRenderer
+                      content={assistantAnswer}
+                      color={sectionColors.answer.text(theme.palette.mode)}
+                    />
                   </Typography>
                 </Paper>
               )
