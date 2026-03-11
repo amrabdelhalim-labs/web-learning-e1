@@ -72,7 +72,7 @@ Test folder used non-standard `__tests__/` naming convention, conflicting with w
 
 **Technical Solution:**
 
-```
+```text
 ❌ Before                  ✅ After
 app/__tests__/            app/tests/
 ├── types.test.ts         ├── types.test.ts
@@ -151,7 +151,7 @@ No deployment guide existed; project readiness for production environments was u
 
 **Problem Statement:**
 Heroku deployment failed with TypeScript compilation error:
-```
+```text
 Type error: Cannot find name 'vi'.
 ./app/tests/setupTests.ts:26:10
 ```
@@ -299,7 +299,7 @@ Existing workspace documentation was too project-specific (MongoDB, GraphQL, Exp
 
 **Documentation Scope:**
 
-```
+```text
 Workspace Docs (Reusable)
 ├── project-types-guide.md ──────── Type classification (universal)
 ├── ai-improvement-guide.md ─────── Production improvements (universal)
@@ -339,7 +339,7 @@ Project Docs (Specific)
 
 **Git History (Since v2.0.0):**
 
-```
+```text
 48b855c fix(heroku): prevent crash by using next.config.js
     ├─ Replaced next.config.ts with next.config.js
     └─ Fixed Heroku H10/H503 startup crash
@@ -389,7 +389,7 @@ $ npm test
 
 **Build Process:** ✅ Successful
 
-```
+```text
 Step 1: Compilation
 └─ ✓ Compiled successfully in 8.8s
 
@@ -411,7 +411,7 @@ Output Size: Ready for deployment
 
 **Routes Generated:**
 
-```
+```text
 Prerendered Routes (Static):
 ├─ /
 └─ /_not-found
@@ -525,7 +525,7 @@ $ heroku logs --tail --app amr-ailearning-e1
 ```
 
 **Expected Output:**
-```
+```text
 Enumerating objects: 15, done.
 Compiling TypeScript
 Building Next.js application...
@@ -621,7 +621,7 @@ $ heroku logs --tail --app amr-ailearning-e1
 
 ### File Organization
 
-```
+```text
 web-learning-e1/
 ├── docs/
 │   ├── deployment.md                 [NEW:     778 lines]

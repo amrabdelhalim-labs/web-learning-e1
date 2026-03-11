@@ -1,4 +1,4 @@
-# علمني — منصة تعلم اللغة الإنجليزية بالذكاء الاصطناعي
+﻿# علمني — منصة تعلم اللغة الإنجليزية بالذكاء الاصطناعي
 
 منصة تفاعلية لتعلم اللغة الإنجليزية مبنية بـ **Next.js 16 + TypeScript** مع **OpenAI GPT-4o-mini** لتوليد محتوى ديناميكي ودعم الوضع الليلي/النهاري باستخدام **Material-UI 7**.
 
@@ -158,23 +158,23 @@ npm start
 
 ## البنية الهيكلية
 
-```
+```text
 web-learning-e1/
 ├── app/                           # مجلد Next.js App Router
-│   ├── types.ts                   # تعريفات الأنواع (ChatMessage، ApiResponse، etc.)
-│   ├── config.ts                  # ثوابت التطبيق (LESSONS، APP_NAME، etc.)
+│   ├── types.ts                   # تعريفات الأنواع (ChatMessage, ApiResponse, etc.)
+│   ├── config.ts                  # ثوابت التطبيق (LESSONS, APP_NAME, etc.)
 │   ├── globals.css                # CSS عام مع متغيرات الثيم (dark/light)
 │   ├── layout.tsx                 # Root layout مع metadata
 │   ├── page.tsx                   # الصفحة الرئيسية (قائمة الميزات)
 │   ├── providers.tsx              # Context providers wrapper
 │   ├── context/                   # React contexts
 │   │   ├── ThemeContext.tsx       # إدارة الثيم (light/dark)
-│   │   └── AppContext.tsx         # حالة التطبيق (messages، alerts)
+│   │   └── AppContext.tsx         # حالة التطبيق (messages, alerts)
 │   ├── hooks/                     # Custom hooks
 │   │   ├── useThemeMode.ts        # hook للوصول إلى ThemeContext
 │   │   └── useAppContext.ts       # hook للوصول إلى AppContext
 │   ├── lib/                       # Utility functions
-│   │   ├── api.ts                 # دوال API (getChatCompletion، etc.)
+│   │   ├── api.ts                 # دوال API (getChatCompletion, etc.)
 │   │   └── apiErrors.ts           # معالجة الأخطاء (رسائل عربية)
 │   ├── components/                # React components
 │   │   ├── ToolBar/               # شريط الأدوات (مع زر تبديل الثيم)
@@ -208,7 +208,7 @@ web-learning-e1/
 │       ├── README.md              # فهرس الدروس
 │       ├── concepts-guide.md      # دليل المفاهيم
 │       ├── quick-reference.md     # مرجع سريع
-│       ├── server/                # 2 درس (API routes، اختبارات)
+│       ├── server/                # 2 درس (API routes, اختبارات)
 │       └── client/                # 6 دروس (الهيكل إلى الاختبارات)
 │   └── README.md                  # مرجع المشاريع في Workspace
 ├── public/                        # Static assets
@@ -236,8 +236,8 @@ web-learning-e1/
 جميع الحالة العامة مُدارة عبر **React Context** مع custom hooks للوصول:
 
 ```typescript
-// ✅ صحيح
 import { useThemeMode } from '@/app/hooks/useThemeMode';
+// ✅ صحيح
 const { mode, toggleTheme } = useThemeMode();
 
 // ❌ خاطئ — لا تستورد الـ Context مباشرة
@@ -246,15 +246,15 @@ import { ThemeContext } from '@/app/context/ThemeContext';
 
 ### طبقات المعمارية
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │         Pages (app/[slug]/...)          │  ← UI + user interaction
 ├─────────────────────────────────────────┤
-│      Layouts + Components               │  ← MainLayout، ToolBar، SideBar
+│      Layouts + Components               │  ← MainLayout, ToolBar, SideBar
 ├─────────────────────────────────────────┤
-│  Contexts (ThemeContext، AppContext)    │  ← Global state management
+│  Contexts (ThemeContext, AppContext)    │  ← Global state management
 ├─────────────────────────────────────────┤
-│  Custom Hooks (useThemeMode، etc.)      │  ← Abstraction layer
+│  Custom Hooks (useThemeMode, etc.)      │  ← Abstraction layer
 ├─────────────────────────────────────────┤
 │      API Utilities (lib/api.ts)         │  ← Client-side API calls
 ├─────────────────────────────────────────┤
@@ -268,7 +268,7 @@ import { ThemeContext } from '@/app/context/ThemeContext';
 
 #### 1. Chat Completion (محاضرة، أسئلة، ترجمة)
 
-```
+```text
 [Page Component]
     ↓ calls getChatCompletion([messages])
 [lib/api.ts]
@@ -280,14 +280,14 @@ import { ThemeContext } from '@/app/context/ThemeContext';
     ↓ response
 [API Route]
     ↓ handleOpenAIError() if error
-    ↓ return { data: { role، content }، status }
+    ↓ return { data: { role, content }, status }
 [Page Component]
     ↓ update UI with response
 ```
 
 #### 2. Speech-to-Text (محادثة)
 
-```
+```text
 [conversation/page.tsx]
     ↓ user records audio → blob URL
     ↓ calls getTranscription(blobUrl)
@@ -300,7 +300,7 @@ import { ThemeContext } from '@/app/context/ThemeContext';
 [OpenAI Whisper]
     ↓ transcription text
 [API Route]
-    ↓ return { data: { text }، status }
+    ↓ return { data: { text }, status }
 [conversation/page.tsx]
     ↓ display transcription + evaluation
 ```
@@ -409,8 +409,8 @@ localStorage.setItem('theme-mode', 'dark'); // أو 'light'
 ### استخدام Prettier
 
 ```bash
-# تنسيق جميع الملفات
 npm run format
+# تنسيق جميع الملفات
 # أو
 node format.mjs
 
@@ -449,8 +449,8 @@ git add --renormalize .
 ### تشغيل الاختبارات
 
 ```bash
-# تشغيل مرة واحدة
 npm test
+# تشغيل مرة واحدة
 
 # وضع المراقبة (أثناء التطوير)
 npm run test:watch
@@ -477,8 +477,8 @@ npm run test:coverage
 ### نشر سريع على Vercel (الأسهل)
 
 ```bash
-# 1. تثبيت Vercel CLI
 npm i -g vercel
+# 1. تثبيت Vercel CLI
 
 # 2. نشر
 vercel
@@ -493,8 +493,8 @@ vercel --prod
 ### نشر على Heroku (خطوة بخطوة)
 
 ```bash
-# 1. إنشاء تطبيق Heroku
 heroku create my-ai-learning-app
+# 1. إنشاء تطبيق Heroku
 
 # 2. إضافة متغيرات البيئة
 heroku config:set OPENAI_API_KEY=sk-proj-...

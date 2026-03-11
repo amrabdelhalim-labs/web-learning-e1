@@ -19,26 +19,26 @@
 
 ## 2. بنية نظام المظهر
 
-```
+```text
 app/
 ├── context/
-│   └── ThemeContext.tsx     ← قلب النظام (سياق + مزود + ألوان)
+│   └── ThemeContext.tsx  // قلب النظام (سياق + مزود + ألوان)
 ├── hooks/
-│   └── useThemeMode.ts     ← خطاف مخصص للوصول السهل
+│   └── useThemeMode.ts  // خطاف مخصص للوصول السهل
 ├── config.ts               ← THEME_STORAGE_KEY
 └── types.ts                ← ThemeMode, ThemeContextState
 ```
 
 ### التسلسل:
 
-```
+```text
 ThemeContext.tsx
     │
-    ├── createAppTheme('light')  ← ألوان فاتحة
-    ├── createAppTheme('dark')   ← ألوان مظلمة
-    ├── RTL Cache                ← دعم الاتجاه العربي
-    ├── localStorage             ← حفظ الخيار
-    └── matchMedia               ← اكتشاف تفضيل النظام
+    ├── createAppTheme('light')  // ألوان فاتحة
+    ├── createAppTheme('dark')  // ألوان مظلمة
+    ├── RTL Cache  // دعم الاتجاه العربي
+    ├── localStorage  // حفظ الخيار
+    └── matchMedia  // اكتشاف تفضيل النظام
 ```
 
 ---
@@ -132,12 +132,12 @@ export function ThemeProviderWrapper({ children }: { children: React.ReactNode }
 
 ### مخطط التدفق:
 
-```
+```text
 فتح التطبيق
     │
     ├── هل يوجد خيار في localStorage؟
-    │   ├── نعم → استخدمه
-    │   └── لا → اكتشف تفضيل النظام
+    │   ├── نعم  // استخدمه
+    │   └── لا  // اكتشف تفضيل النظام
     │
     ▼
 المستخدم يضغط زر التبديل
@@ -210,8 +210,8 @@ export function useThemeMode(): ThemeContextState {
 ### الاستخدام في المكونات:
 
 ```typescript
-// في أي مكون:
 import { useThemeMode } from '@/app/hooks/useThemeMode';
+// في أي مكون:
 
 function ToolBar() {
   const { mode, toggleTheme } = useThemeMode();

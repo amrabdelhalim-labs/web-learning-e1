@@ -1,4 +1,4 @@
-# دليل المساهمة — علمني (web-learning-e1)
+﻿# دليل المساهمة — علمني (web-learning-e1)
 
 > **اقرأ هذا الملف قبل إجراء أي تغيير.**
 > هذه القواعد غير قابلة للتفاوض وتُطبَّق عند مراجعة الكود. أي انحراف يتطلب مبرراً صريحاً.
@@ -29,13 +29,13 @@
 
 ## 2. أسماء الفروع
 
-```
-main             ← كود جاهز للإنتاج فقط؛ لا تُودِع مباشرة
-feat/<topic>     ← ميزة جديدة (مثال: feat/dark-mode)
-fix/<topic>      ← إصلاح خطأ (مثال: fix/audio-recording)
-docs/<topic>     ← توثيق فقط (مثال: docs/update-architecture)
-chore/<topic>    ← أدوات، اعتماديات، إعداد (مثال: chore/update-prettier)
-refactor/<topic> ← إعادة هيكلة بدون تغيير في السلوك
+```text
+main  // كود جاهز للإنتاج فقط؛ لا تُودِع مباشرة
+feat/<topic>  // ميزة جديدة (مثال: feat/dark-mode)
+fix/<topic>  // إصلاح خطأ (مثال: fix/audio-recording)
+docs/<topic>  // توثيق فقط (مثال: docs/update-architecture)
+chore/<topic>  // أدوات, اعتماديات, إعداد (مثال: chore/update-prettier)
+refactor/<topic>  // إعادة هيكلة بدون تغيير في السلوك
 ```
 
 ---
@@ -44,7 +44,7 @@ refactor/<topic> ← إعادة هيكلة بدون تغيير في السلوك
 
 **الصيغة:** [Conventional Commits](https://www.conventionalcommits.org/) — **بالإنجليزية فقط**.
 
-```
+```text
 <type>(<scope>): <short description>
 
 <body — list of changes, one per line starting with ->
@@ -85,8 +85,8 @@ refactor/<topic> ← إعادة هيكلة بدون تغيير في السلوك
 ### أمثلة
 
 ```bash
-# ✅ صحيح
 git commit -m "feat(app): add dark mode theme support
+# ✅ صحيح
 
 - Create ThemeContext with light/dark toggle
 - Add useThemeMode hook with localStorage persistence
@@ -139,8 +139,8 @@ git commit -m "feat(app): added dark mode"
 ### صيغة التاج — annotated tags حصراً
 
 ```bash
-# تاج موصوف (استخدم دائماً -a — لا lightweight tags)
 git tag -a v1.2.0 -m "v1.2.0 - Add Dark Mode Theme
+# تاج موصوف (استخدم دائماً -a — لا lightweight tags)
 
 - ThemeContext with light/dark toggle and system preference detection
 - useThemeMode custom hook
@@ -168,8 +168,8 @@ git push origin v1.2.0
 **جميع الكود منسّق بـ Prettier** قبل كل إيداع. لا قرارات مسافات يدوية.
 
 ```bash
-# تنسيق جميع الملفات (من جذر المشروع — يعمل على جميع الأنظمة)
 node format.mjs
+# تنسيق جميع الملفات (من جذر المشروع — يعمل على جميع الأنظمة)
 
 # التحقق بدون كتابة (CI — يخرج 1 إذا كان غير منسّق)
 node format.mjs --check
@@ -208,8 +208,8 @@ npm run format:check
 شغّل هذا قبل كل `git commit`:
 
 ```bash
-# 1. فحص TypeScript
 npx tsc --noEmit
+# 1. فحص TypeScript
 
 # 2. Prettier — تأكد من تطبيق التنسيق
 node format.mjs --check
@@ -270,8 +270,8 @@ npm run build
 ### أوامر التشغيل
 
 ```bash
-# تشغيل الاختبارات (مرة واحدة)
 npm test
+# تشغيل الاختبارات (مرة واحدة)
 
 # وضع المراقبة (أثناء التطوير)
 npm run test:watch
@@ -292,11 +292,11 @@ npm run test:coverage
 
 ## 9. هيكل المشروع
 
-```
+```text
 web-learning-e1/
 ├── app/                    # مجلد Next.js App Router
 │   ├── types.ts            # جميع تعريفات الأنواع
-│   ├── config.ts           # ثوابت التطبيق (LESSONS، LESSON_SECTIONS، etc.)
+│   ├── config.ts           # ثوابت التطبيق (LESSONS, LESSON_SECTIONS, etc.)
 │   ├── globals.css         # CSS عام مع متغيرات الثيم
 │   ├── layout.tsx          # Root layout
 │   ├── page.tsx            # الصفحة الرئيسية

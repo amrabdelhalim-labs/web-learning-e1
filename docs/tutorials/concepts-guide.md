@@ -91,10 +91,10 @@ const theme = createTheme({
 
 آلية في React لمشاركة البيانات بين المكونات بدون تمرير props عبر كل المستويات.
 
-```
-بدون Context (Prop Drilling):
-┌──────────────────────────┐
+```text
 │ App (state) → prop →     │
+┌──────────────────────────┐
+بدون Context (Prop Drilling):
 │   Layout → prop →        │
 │     SideBar → prop →     │
 │       ListItem (يحتاج!)  │
@@ -126,8 +126,8 @@ const theme = createTheme({
 دوال تبدأ بـ `use` تجمع منطقًا مشتركًا يمكن إعادة استخدامه:
 
 ```typescript
-// خطاف مخصص — يوفر الوصول للمظهر مع حماية
 export function useThemeMode() {
+// خطاف مخصص — يوفر الوصول للمظهر مع حماية
   const context = useContext(ThemeContext);
   if (!context) throw new Error('...');
   return context;
@@ -228,8 +228,8 @@ const rtlCache = createCache({
 أداة تنسيق تلقائي للكود — تضمن أن كل الملفات بنفس الأسلوب:
 
 ```bash
-# تنسيق كل الملفات
 npm run format
+# تنسيق كل الملفات
 
 # فحص التنسيق (بدون تعديل)
 npm run format:check
@@ -250,7 +250,7 @@ npm run format:check
 
 معيار لكتابة رسائل git commit بشكل منظم:
 
-```
+```text
 type(scope): description
 
 feat(app): add dark mode toggle

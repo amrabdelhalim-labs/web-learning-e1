@@ -1,4 +1,4 @@
-# توجيهات AI — علمني (Teach Me / web-learning-e1)
+﻿# توجيهات AI — علمني (Teach Me / web-learning-e1)
 
 > **📘 دليل البداية السريعة للمساعدين AI**
 > 
@@ -24,18 +24,18 @@
 
 **نوع المشروع:** Next.js 16 App Router — single-package (لا monorepo)
 
-```
+```text
 app/
-├── types.ts              ← جميع تعريفات الأنواع
-├── config.ts             ← ثوابت التطبيق (LESSONS، APP_NAME، ASK_ME_SYSTEM_PROMPT، etc.)
-├── styles.ts             ← تنسيقات مركزية (ألوان الأقسام، أنماط Paper، fontSize)
-├── context/              ← React Contexts (ThemeContext، AppContext)
-├── hooks/                ← Custom hooks (useThemeMode، useAppContext، useAudioRecorder)
-├── lib/                  ← Utilities (api.ts، apiErrors.ts)
-├── components/           ← React components (ToolBar، SideBar، Footer، MarkdownRenderer)
+├── types.ts  // جميع تعريفات الأنواع
+├── config.ts  // ثوابت التطبيق (LESSONS, APP_NAME, ASK_ME_SYSTEM_PROMPT, etc.)
+├── styles.ts  // تنسيقات مركزية (ألوان الأقسام, أنماط Paper, fontSize)
+├── context/              ← React Contexts (ThemeContext, AppContext)
+├── hooks/                ← Custom hooks (useThemeMode, useAppContext, useAudioRecorder)
+├── lib/                  ← Utilities (api.ts, apiErrors.ts)
+├── components/           ← React components (ToolBar, SideBar, Footer, MarkdownRenderer)
 ├── layouts/              ← Layout wrappers (MainLayout)
-├── api/                  ← API Routes (chat-completion، speech-to-text)
-└── [slug]/               ← Dynamic pages (lecture، question، conversation، translate)
+├── api/                  ← API Routes (chat-completion, speech-to-text)
+└── [slug]/               ← Dynamic pages (lecture, question, conversation, translate)
 ```
 
 **لا توجد قاعدة بيانات** — كل المحتوى مُولَّد ديناميكياً عبر OpenAI API.
@@ -58,6 +58,8 @@ app/
 | **Audio Recording** | تسجيل الصوت عبر `useAudioRecorder` hook، لا `react-media-recorder` |
 | **Markdown Rendering** | ردود AI تُعرض عبر `MarkdownRenderer`، لا plain text أو `split('\n')` |
 | **System Prompt** | خاصية "اسألني" تبدأ بـ `ASK_ME_SYSTEM_PROMPT` من `config.ts` |
+| **أمان Bidi في التوثيق** | لا تضع الفاصلة العربية (U+060C) أو أي حرف عربي داخل كتل الكود `` ``` `` — تُسبب عرض الكود من اليمين لليسار. استخدم علامات ترقيم لاتينية فقط داخل الأسوار. انظر `docs/ai-patterns-reference.md §10` |
+| **أول سطر في كتل الكود** | يجب أن يبدأ أول سطر غير فارغ في أي كتلة كود بحرف لاتيني. خوارزمية Unicode Bidi تحدد اتجاه الكتلة كلها من أول حرف قوي — إذا كان عربياً عرض الكود RTL كله. ضع سطر كود حقيقي (`import`، `const`…) أولاً وانقل التعليقات العربية للسطر الثاني. الـ emoji (`✅`، `❌`) و`//` محايدة في Bidi ولا تحمي. انظر `docs/ai-tutorials-guide.md §2.6` |
 
 ### التسميات
 
@@ -86,11 +88,11 @@ app/
 ### ✅ الطريقة الصحيحة
 
 ```typescript
-// صفحة أو مكون
 import { useThemeMode } from '@/app/hooks/useThemeMode';
+// صفحة أو مكون
 
 function MyComponent() {
-  const { mode، toggleTheme } = useThemeMode();
+  const { mode, toggleTheme } = useThemeMode();
   // ✅ safe - will show error if used outside provider
 }
 ```
@@ -98,13 +100,13 @@ function MyComponent() {
 ### ❌ الطريقة الخاطئة
 
 ```typescript
-// ❌ لا تفعل هذا
 import { ThemeContext } from '@/app/context/ThemeContext';
+// ❌ لا تفعل هذا
 import { useContext } from 'react';
 
 function MyComponent() {
   const context = useContext(ThemeContext);
-  // ❌ no type safety، no null check، breaks pattern
+  // ❌ no type safety, no null check, breaks pattern
 }
 ```
 
@@ -138,7 +140,7 @@ import { getChatCompletion } from '@/app/lib/api';
 import type { ChatMessage } from '@/app/types';
 
 const messages: ChatMessage[] = [
-  { role: 'user'، content: 'Explain present simple' }
+  { role: 'user', content: 'Explain present simple' }
 ];
 
 const response = await getChatCompletion(messages);
@@ -162,13 +164,13 @@ export const OPENAI_MODEL = 'gpt-4o-mini';
 
 // 9 دروس قواعد
 export const LESSONS: LessonItem[] = [
-  { slug: 'present-simple'، nameAr: 'المضارع البسيط' }،
+  { slug: 'present-simple', nameAr: 'المضارع البسيط' },
   // ...
 ];
 
 // 4 أقسام لكل درس
 export const LESSON_SECTIONS: LessonSectionItem[] = [
-  { key: 'lecture'، nameAr: 'المحاضرة'، icon: 'MenuBook' }،
+  { key: 'lecture', nameAr: 'المحاضرة', icon: 'MenuBook' },
   // ...
 ];
 ```
@@ -176,7 +178,7 @@ export const LESSON_SECTIONS: LessonSectionItem[] = [
 ### استخدامها
 
 ```typescript
-import { APP_NAME، LESSONS } from '@/app/config';
+import { APP_NAME, LESSONS } from '@/app/config';
 
 // ✅ استخدم الثابت
 <Typography>{APP_NAME}</Typography>
@@ -193,14 +195,14 @@ import { APP_NAME، LESSONS } from '@/app/config';
 
 | الوضع | اللون الأساسي | الخلفية | النص |
 |-------|--------------|---------|------|
-| `light` | `#1565c0` | `#ffffff` | `rgba(0، 0، 0، 0.87)` |
+| `light` | `#1565c0` | `#ffffff` | `rgba(0, 0, 0, 0.87)` |
 | `dark` | `#90caf9` | `#121212` | `#ffffff` |
 
 ### التخزين
 
 ```typescript
-// المفتاح في localStorage
 THEME_STORAGE_KEY = 'theme-mode'
+// المفتاح في localStorage
 
 // القيم الممكنة
 'light' | 'dark'
@@ -220,14 +222,14 @@ THEME_STORAGE_KEY = 'theme-mode'
 
 | المسار | الوصف | Input | Output |
 |--------|-------|-------|--------|
-| `/api/chat-completion` | GPT-4o-mini chat | `{ messages: ChatMessage[] }` | `{ role، content }` |
+| `/api/chat-completion` | GPT-4o-mini chat | `{ messages: ChatMessage[] }` | `{ role, content }` |
 | `/api/speech-to-text` | Whisper transcription | `FormData(audio file)` | `{ text }` |
 | `/api/text-completion` | Legacy completion | `{ prompt: string }` | `{ text }` |
 
 ### معالجة الأخطاء
 
 ```typescript
-import { validateApiKey، handleOpenAIError } from '@/app/lib/apiErrors';
+import { validateApiKey, handleOpenAIError } from '@/app/lib/apiErrors';
 
 export async function POST(request: Request) {
   const keyError = validateApiKey();
@@ -235,7 +237,7 @@ export async function POST(request: Request) {
 
   try {
     const response = await openai.chat.completions.create({...});
-    return NextResponse.json({ role، content }، { status: 200 });
+    return NextResponse.json({ role, content }, { status: 200 });
   } catch (error) {
     return handleOpenAIError(error); // Returns Arabic error by status code
   }
@@ -255,17 +257,17 @@ export async function POST(request: Request) {
 ### المسارات
 
 ```typescript
-/present-simple/lecture        ← شرح المضارع البسيط
-/present-simple/question       ← أسئلة اختيار من متعدد
-/present-simple/conversation   ← تسجيل صوتي + تقييم نطق
-/present-simple/translate      ← ترجمة EN↔AR + تقييم
+/present-simple/lecture  // شرح المضارع البسيط
+/present-simple/question  // أسئلة اختيار من متعدد
+/present-simple/conversation  // تسجيل صوتي + تقييم نطق
+/present-simple/translate  // ترجمة EN↔AR + تقييم
 ```
 
 ### نمط slug
 
 ```typescript
-// كل صفحة تستقبل slug ديناميكي:
 export default function LecturePage({ params }: SlugPageParams) {
+// كل صفحة تستقبل slug ديناميكي:
   const { slug } = use(params); // 'present-simple'
   // ...
 }
@@ -315,7 +317,7 @@ export interface ChatMessage {
   content: string;
 }
 
-export interface ApiResponse<T = Record<string، unknown>> {
+export interface ApiResponse<T = Record<string, unknown>> {
   data: T;
   status: number;
 }
@@ -330,7 +332,7 @@ export interface SlugPageParams {
 ### استخدامها
 
 ```typescript
-import type { ChatMessage، ApiResponse، SlugPageParams } from '@/app/types';
+import type { ChatMessage, ApiResponse, SlugPageParams } from '@/app/types';
 ```
 
 ---

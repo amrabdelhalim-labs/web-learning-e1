@@ -54,47 +54,47 @@
 
 ### 🎯 للمبتدئين (ابدأ من هنا)
 
-```
-concepts-guide.md → لفهم التقنيات الأساسية
+```text
+concepts-guide.md  // لفهم التقنيات الأساسية
         │
         ▼
-client/01-app-structure.md → بنية المشروع
+client/01-app-structure.md  // بنية المشروع
         │
         ▼
-client/02-theme-system.md → نظام المظهر
+client/02-theme-system.md  // نظام المظهر
         │
         ▼
-client/03-state-management.md → إدارة الحالة
+client/03-state-management.md  // إدارة الحالة
         │
         ▼
-server/01-api-routes.md → كيف يتواصل التطبيق مع الذكاء الاصطناعي
+server/01-api-routes.md  // كيف يتواصل التطبيق مع الذكاء الاصطناعي
         │
         ▼
-client/04-components.md → المكونات الأساسية
+client/04-components.md  // المكونات الأساسية
         │
         ▼
-client/05-dynamic-pages.md → صفحات التعلم
+client/05-dynamic-pages.md  // صفحات التعلم
 ```
 
 ### 🧪 لمن يريد فهم الاختبارات
 
-```
-server/02-testing.md → اختبارات معالجة الأخطاء
+```text
+server/02-testing.md  // اختبارات معالجة الأخطاء
         │
         ▼
-client/06-testing.md → اختبارات العميل (Vitest)
+client/06-testing.md  // اختبارات العميل (Vitest)
 ```
 
 ### 🔧 للمطورين المتقدمين
 
-```
-quick-reference.md → كل الأوامر والأنماط بلمحة
+```text
+quick-reference.md  // كل الأوامر والأنماط بلمحة
         │
         ▼
 server/01-api-routes.md + client/03-state-management.md
         │
         ▼
-client/05-dynamic-pages.md → التنفيذ المتقدم
+client/05-dynamic-pages.md  // التنفيذ المتقدم
 ```
 
 ---

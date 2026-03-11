@@ -1,4 +1,4 @@
-# دليل إضافة ميزات — علمني (web-learning-e1)
+﻿# دليل إضافة ميزات — علمني (web-learning-e1)
 
 > **🛠️ دليل عملي خطوة بخطوة**
 >
@@ -30,10 +30,10 @@
 
 ```typescript
 export const LESSONS: LessonItem[] = [
-  { slug: 'present-simple'، nameAr: 'المضارع البسيط' }،
-  { slug: 'present-continuous'، nameAr: 'المضارع المستمر' }،
-  { slug: 'past-simple'، nameAr: 'الماضي البسيط' }،
-  { slug: 'past-continuous'، nameAr: 'الماضي المستمر' }،  // ← الدرس الجديد
+  { slug: 'present-simple', nameAr: 'المضارع البسيط' },
+  { slug: 'present-continuous', nameAr: 'المضارع المستمر' },
+  { slug: 'past-simple', nameAr: 'الماضي البسيط' },
+  { slug: 'past-continuous', nameAr: 'الماضي المستمر' },  // ← الدرس الجديد
   // ... باقي الدروس
 ];
 ```
@@ -48,23 +48,23 @@ export const LESSONS: LessonItem[] = [
 أضف نصوص تحميل للدرس الجديد في `app/config.ts`:
 
 ```typescript
-export const LOADING_TEXTS: Record<LessonSection، string[]> = {
+export const LOADING_TEXTS: Record<LessonSection, string[]> = {
   lecture: [
-    'نُجهّز شرحاً واضحاً لك...'،
+    'نُجهّز شرحاً واضحاً لك...',
     // ...
-  ]،
+  ],
   question: [
-    'نُجهّز سؤالاً مناسباً...'،
+    'نُجهّز سؤالاً مناسباً...',
     // ...
-  ]،
+  ],
   conversation: [
-    'نختار جملة مناسبة لك...'،
+    'نختار جملة مناسبة لك...',
     // ...
-  ]،
+  ],
   translate: [
-    'نُعدّ جملة للترجمة...'،
+    'نُعدّ جملة للترجمة...',
     // ...
-  ]،
+  ],
 };
 ```
 
@@ -77,7 +77,7 @@ npm run dev
 ```
 
 افتح المتصفح:
-```
+```text
 http://localhost:3000/past-continuous/lecture
 http://localhost:3000/past-continuous/question
 http://localhost:3000/past-continuous/conversation
@@ -106,11 +106,11 @@ export type LessonSection = 'lecture' | 'question' | 'conversation' | 'translate
 
 ```typescript
 export const LESSON_SECTIONS: LessonSectionItem[] = [
-  { key: 'lecture'، nameAr: 'المحاضرة'، icon: 'MenuBook' }،
-  { key: 'question'، nameAr: 'الأسئلة'، icon: 'Quiz' }،
-  { key: 'conversation'، nameAr: 'المحادثة'، icon: 'RecordVoiceOver' }،
-  { key: 'translate'، nameAr: 'الترجمة'، icon: 'Translate' }،
-  { key: 'listening'، nameAr: 'الاستماع'، icon: 'Headphones' }،  // ← القسم الجديد
+  { key: 'lecture', nameAr: 'المحاضرة', icon: 'MenuBook' },
+  { key: 'question', nameAr: 'الأسئلة', icon: 'Quiz' },
+  { key: 'conversation', nameAr: 'المحادثة', icon: 'RecordVoiceOver' },
+  { key: 'translate', nameAr: 'الترجمة', icon: 'Translate' },
+  { key: 'listening', nameAr: 'الاستماع', icon: 'Headphones' },  // ← القسم الجديد
 ];
 ```
 
@@ -119,12 +119,12 @@ export const LESSON_SECTIONS: LessonSectionItem[] = [
 ```typescript
 import HeadphonesIcon from '@mui/icons-material/Headphones';
 
-const iconMap: Record<string، React.ComponentType<SvgIconProps>> = {
-  MenuBook: MenuBookIcon،
-  Quiz: QuizIcon،
-  RecordVoiceOver: RecordVoiceOverIcon،
-  Translate: TranslateIcon،
-  Headphones: HeadphonesIcon،  // ← الأيقونة الجديدة
+const iconMap: Record<string, React.ComponentType<SvgIconProps>> = {
+  MenuBook: MenuBookIcon,
+  Quiz: QuizIcon,
+  RecordVoiceOver: RecordVoiceOverIcon,
+  Translate: TranslateIcon,
+  Headphones: HeadphonesIcon,  // ← الأيقونة الجديدة
 };
 ```
 
@@ -133,26 +133,26 @@ const iconMap: Record<string، React.ComponentType<SvgIconProps>> = {
 ```tsx
 'use client';
 
-import { useState، useEffect، useRef، use } from 'react';
-import { Box، Button، CardContent، Typography } from '@mui/material';
+import { useState, useEffect, useRef, use } from 'react';
+import { Box, Button, CardContent, Typography } from '@mui/material';
 import MainLayout from '@/app/layouts/MainLayout';
 import { getChatCompletion } from '@/app/lib/api';
 import { useAppContext } from '@/app/hooks/useAppContext';
 import { getRandomLoadingText } from '@/app/config';
-import type { SlugPageParams، ChatMessage } from '@/app/types';
+import type { SlugPageParams, ChatMessage } from '@/app/types';
 
 export default function ListeningPage({ params }: SlugPageParams) {
   const { slug } = use(params);
-  const [message، setMessage] = useState('');
-  const [loading، setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const hasInitialized = useRef(false);
 
   const {
-    setShowAlert،
-    setErrorMessage،
-    setTextButton،
-    setShowFooterButton،
-    clearMessages،
+    setShowAlert,
+    setErrorMessage,
+    setTextButton,
+    setShowFooterButton,
+    clearMessages,
   } = useAppContext();
 
   const getExercise = async () => {
@@ -160,14 +160,14 @@ export default function ListeningPage({ params }: SlugPageParams) {
     setShowFooterButton(false);
 
     const prompt: ChatMessage = {
-      role: 'user'،
-      content: `As an English teacher for A2 students، create a simple listening exercise about "${slug}".
+      role: 'user',
+      content: `As an English teacher for A2 students, create a simple listening exercise about "${slug}".
 
       Provide:
       1. A short dialogue (3-4 sentences)
       2. 2-3 comprehension questions in Arabic
 
-      Keep it simple and suitable for A2 level.`،
+      Keep it simple and suitable for A2 level.`,
     };
 
     const response = await getChatCompletion([prompt]);
@@ -193,7 +193,7 @@ export default function ListeningPage({ params }: SlugPageParams) {
     return () => {
       clearMessages();
     };
-  }، []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <MainLayout
@@ -218,13 +218,13 @@ export default function ListeningPage({ params }: SlugPageParams) {
 في `app/config.ts`:
 
 ```typescript
-export const LOADING_TEXTS: Record<LessonSection، string[]> = {
+export const LOADING_TEXTS: Record<LessonSection, string[]> = {
   // ... الأقسام الموجودة
   listening: [
-    'نُعدّ تمريناً صوتياً...'،
-    'نختار حواراً مناسباً...'،
-    'نُجهّز أسئلة الفهم...'،
-  ]،
+    'نُعدّ تمريناً صوتياً...',
+    'نختار حواراً مناسباً...',
+    'نُجهّز أسئلة الفهم...',
+  ],
 };
 ```
 
@@ -236,7 +236,7 @@ npm run dev
 ```
 
 افتح:
-```
+```text
 http://localhost:3000/present-simple/listening
 ```
 
@@ -257,32 +257,32 @@ http://localhost:3000/present-simple/listening
 **قبل:**
 ```typescript
 const questionPrompt: ChatMessage = {
-  role: 'user'،
-  content: `Create a multiple choice question about "${slug}" for A2 students...`،
+  role: 'user',
+  content: `Create a multiple choice question about "${slug}" for A2 students...`,
 };
 ```
 
 **بعد (محسّن):**
 ```typescript
 const questionPrompt: ChatMessage = {
-  role: 'user'،
-  content: `As an experienced English teacher for A2 Arabic-speaking students، create a challenging but fair multiple choice question about "${slug}".
+  role: 'user',
+  content: `As an experienced English teacher for A2 Arabic-speaking students, create a challenging but fair multiple choice question about "${slug}".
 
   Requirements:
-  - Question should test practical usage، not just definitions
-  - Include a realistic context (e.g.، dialogue، short story)
+  - Question should test practical usage, not just definitions
+  - Include a realistic context (e.g., dialogue, short story)
   - 4 options: 1 correct + 3 plausible distractors
   - Distractors should represent common learner mistakes
   - Difficulty: slightly above A2 to encourage learning
 
   Format your response as JSON:
   {
-    "question": "..."،
-    "options": ["A: ..."، "B: ..."، "C: ..."، "D: ..."]،
+    "question": "...",
+    "options": ["A: ...", "B: ...", "C: ...", "D: ..."],
     "correctAnswer": "A"
   }
 
-  Respond ONLY with valid JSON، no explanation.`،
+  Respond ONLY with valid JSON, no explanation.`,
 };
 ```
 
@@ -306,8 +306,8 @@ if (response.status === 200) {
 #### 3.4 اختبار مكثف
 
 ```bash
-# جرّب على عدة دروس مختلفة
 npm run dev
+# جرّب على عدة دروس مختلفة
 ```
 
 افتح:
@@ -341,29 +341,29 @@ const createAppTheme = (mode: ThemeMode): Theme => {
 
   switch (mode) {
     case 'light':
-      palette = { mode: 'light'، primary: { main: '#1565c0' } };
+      palette = { mode: 'light', primary: { main: '#1565c0' } };
       break;
     case 'dark':
-      palette = { mode: 'dark'، primary: { main: '#90caf9' } };
+      palette = { mode: 'dark', primary: { main: '#90caf9' } };
       break;
     case 'highContrast':
       palette = {
-        mode: 'dark'،
-        primary: { main: '#FFFF00' }،  // أصفر فاقع
-        background: { default: '#000000'، paper: '#000000' }،
-        text: { primary: '#FFFFFF' }،
+        mode: 'dark',
+        primary: { main: '#FFFF00' },  // أصفر فاقع
+        background: { default: '#000000', paper: '#000000' },
+        text: { primary: '#FFFFFF' },
       };
       break;
   }
 
-  return createTheme({ direction: 'rtl'، palette }، arSA);
+  return createTheme({ direction: 'rtl', palette }, arSA);
 };
 ```
 
 #### 4.3 تحديث `ToolBar.tsx` — زر دوّار
 
 ```tsx
-const modes: ThemeMode[] = ['light'، 'dark'، 'highContrast'];
+const modes: ThemeMode[] = ['light', 'dark', 'highContrast'];
 
 const cycleTheme = () => {
   const currentIndex = modes.indexOf(mode);
@@ -405,7 +405,7 @@ npm run dev
 ```typescript
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { validateApiKey، handleOpenAIError } from '@/app/lib/apiErrors';
+import { validateApiKey, handleOpenAIError } from '@/app/lib/apiErrors';
 
 export async function POST(request: Request) {
   const keyError = validateApiKey();
@@ -417,19 +417,19 @@ export async function POST(request: Request) {
     const { text } = await request.json();
 
     const mp3 = await openai.audio.speech.create({
-      model: 'tts-1'،
-      voice: 'alloy'،
-      input: text،
+      model: 'tts-1',
+      voice: 'alloy',
+      input: text,
     });
 
     const buffer = Buffer.from(await mp3.arrayBuffer());
 
-    return new NextResponse(buffer، {
-      status: 200،
+    return new NextResponse(buffer, {
+      status: 200,
       headers: {
-        'Content-Type': 'audio/mpeg'،
-        'Content-Length': buffer.length.toString()،
-      }،
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': buffer.length.toString(),
+      },
     });
   } catch (error) {
     return handleOpenAIError(error);
@@ -441,10 +441,10 @@ export async function POST(request: Request) {
 
 ```typescript
 export async function getTextToSpeech(text: string): Promise<Blob> {
-  const res = await fetch('/api/text-to-speech'، {
-    method: 'POST'،
-    body: JSON.stringify({ text })،
-    headers: { 'Content-Type': 'application/json' }،
+  const res = await fetch('/api/text-to-speech', {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+    headers: { 'Content-Type': 'application/json' },
   });
 
   if (!res.ok) {

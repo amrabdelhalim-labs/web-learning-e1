@@ -22,32 +22,32 @@
 
 ## هيكل المجلدات
 
-```
+```text
 app/
-├── layout.tsx          ← الإطار الرئيسي (HTML, metadata, providers)
-├── providers.tsx       ← مزودات السياق (Theme + App + RTL)
-├── page.tsx            ← الصفحة الرئيسية (/)
-├── globals.css         ← أنماط CSS عامة
-├── [slug]/             ← صفحات الدروس الديناميكية
-│   ├── lecture/        ← صفحة المحاضرة
-│   ├── question/       ← صفحة الأسئلة
-│   ├── conversation/   ← صفحة المحادثة
-│   └── translate/      ← صفحة الترجمة
+├── layout.tsx  // الإطار الرئيسي (HTML, metadata, providers)
+├── providers.tsx  // مزودات السياق (Theme + App + RTL)
+├── page.tsx  // الصفحة الرئيسية (/)
+├── globals.css  // أنماط CSS عامة
+├── [slug]/  // صفحات الدروس الديناميكية
+│   ├── lecture/  // صفحة المحاضرة
+│   ├── question/  // صفحة الأسئلة
+│   ├── conversation/  // صفحة المحادثة
+│   └── translate/  // صفحة الترجمة
 ├── api/
 │   ├── route.ts        ← Health check
 │   ├── chat-completion/← GPT-4 محادثة
 │   ├── speech-to-text/ ← Whisper تحويل صوت
 │   └── text-completion/← GPT-4 إكمال نص
-├── components/         ← مكونات مشتركة
+├── components/  // مكونات مشتركة
 ├── context/            ← React Context
-├── controllers/        ← دوال جلب البيانات
-├── layouts/            ← تخطيطات الصفحات
-├── tests/              ← ملفات الاختبار (Vitest)
-├── hooks/              ← خطافات مخصصة (useAudioRecorder, useAppContext...)
-├── styles.ts           ← تنسيقات مركزية (fontSize, paperBase, sectionColors)
-├── config.ts           ← ثوابت وإعدادات
-├── types.ts            ← أنواع TypeScript
-└── lib/                ← أدوات مشتركة (api, apiErrors)
+├── controllers/  // دوال جلب البيانات
+├── layouts/  // تخطيطات الصفحات
+├── tests/  // ملفات الاختبار (Vitest)
+├── hooks/  // خطافات مخصصة (useAudioRecorder, useAppContext...)
+├── styles.ts  // تنسيقات مركزية (fontSize, paperBase, sectionColors)
+├── config.ts  // ثوابت وإعدادات
+├── types.ts  // أنواع TypeScript
+└── lib/  // أدوات مشتركة (api, apiErrors)
 ```
 
 ---
@@ -73,8 +73,8 @@ app/
 ### Context + Provider + Custom Hook
 
 ```typescript
-// 1. إنشاء سياق
 const ThemeContext = createContext<ThemeContextState | null>(null);
+// 1. إنشاء سياق
 
 // 2. مزود يحتوي المنطق
 function ThemeProvider({ children }) {

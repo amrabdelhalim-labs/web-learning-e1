@@ -8,7 +8,7 @@
 
 تخيل أن التطبيق مثل **صحيفة يومية**: شريط العنوان (ToolBar) في الأعلى، الفهرس (SideBar) على الجانب، المحتوى في الوسط، ومربع البحث (Footer) في الأسفل.
 
-```
+```text
 ┌────────────────────────────────────────────┐
 │  ToolBar  [≡ قائمة]  علمني  [🌙/☀️ مظهر]  │
 ├──────────┬─────────────────────────────────┤
@@ -251,11 +251,11 @@ export default function CustomizedListItem({ lectureName, lectureSlug }: Customi
 
 ### مثال على المسارات المُولَّدة:
 
-```
-/Simple-present/lecture      → شرح المضارع البسيط
-/Simple-present/question     → أسئلة المضارع البسيط
-/Simple-present/conversation → محادثة المضارع البسيط
-/Simple-present/translate    → ترجمة المضارع البسيط
+```text
+/Simple-present/lecture  // شرح المضارع البسيط
+/Simple-present/question  // أسئلة المضارع البسيط
+/Simple-present/conversation  // محادثة المضارع البسيط
+/Simple-present/translate  // ترجمة المضارع البسيط
 ```
 
 ---

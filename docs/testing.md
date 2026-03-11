@@ -19,17 +19,17 @@
 
 ## 📁 بنية ملفات الاختبار
 
-```
+```text
 app/tests/
-├── setupTests.ts           ← إعداد بيئة الاختبار (localStorage, matchMedia)
-├── config.test.ts          ← اختبار الثوابت والإعدادات (25 اختبار)
-├── types.test.ts           ← اختبار بنية الأنواع (14 اختبار)
-├── api.test.ts             ← اختبار دوال API العميل (8 اختبار)
-├── apiErrors.test.ts       ← اختبار معالجة الأخطاء في الخادم (8 اختبار)
-├── styles.test.ts          ← اختبار التنسيقات المركزية (19 اختبار)
-├── useAudioRecorder.test.ts ← اختبار خطاف التسجيل الصوتي (6 اختبار)
-├── useThemeMode.test.tsx   ← اختبار خطاف المظهر (3 اختبار)
-└── useAppContext.test.tsx  ← اختبار خطاف سياق التطبيق (4 اختبار)
+├── setupTests.ts  // إعداد بيئة الاختبار (localStorage, matchMedia)
+├── config.test.ts  // اختبار الثوابت والإعدادات (25 اختبار)
+├── types.test.ts  // اختبار بنية الأنواع (14 اختبار)
+├── api.test.ts  // اختبار دوال API العميل (8 اختبار)
+├── apiErrors.test.ts  // اختبار معالجة الأخطاء في الخادم (8 اختبار)
+├── styles.test.ts  // اختبار التنسيقات المركزية (19 اختبار)
+├── useAudioRecorder.test.ts  // اختبار خطاف التسجيل الصوتي (6 اختبار)
+├── useThemeMode.test.tsx  // اختبار خطاف المظهر (3 اختبار)
+└── useAppContext.test.tsx  // اختبار خطاف سياق التطبيق (4 اختبار)
 ```
 
 ---
@@ -37,8 +37,8 @@ app/tests/
 ## 🚀 أوامر التشغيل
 
 ```bash
-# تشغيل جميع الاختبارات
 npm test
+# تشغيل جميع الاختبارات
 
 # تشغيل مع المراقبة (إعادة التشغيل عند التعديل)
 npm run test:watch

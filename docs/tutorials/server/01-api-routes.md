@@ -1,4 +1,4 @@
-# الدرس الأول: مسارات API — التواصل مع الذكاء الاصطناعي 🤖
+﻿# الدرس الأول: مسارات API — التواصل مع الذكاء الاصطناعي 🤖
 
 > **هدف الدرس:** فهم كيفية عمل مسارات API في Next.js وكيف يتواصل التطبيق مع OpenAI لتوليد المحتوى التعليمي
 
@@ -10,14 +10,14 @@
 
 تخيل أن كل ملف `route.ts` هو **نافذة خدمة** في مبنى: كل نافذة تستقبل طلبًا محددًا وتعيد إجابة مناسبة.
 
-```
+```text
 app/api/
 ├── chat-completion/
-│   └── route.ts        ← نافذة المحادثة مع GPT
+│   └── route.ts  // نافذة المحادثة مع GPT
 ├── speech-to-text/
-│   └── route.ts        ← نافذة تحويل الصوت لنص
+│   └── route.ts  // نافذة تحويل الصوت لنص
 └── text-completion/
-    └── route.ts        ← نافذة إكمال النصوص
+    └── route.ts  // نافذة إكمال النصوص
 ```
 
 | المفهوم | الشرح |
@@ -69,10 +69,10 @@ export async function POST(request: Request) {
 
 ### تسلسل البيانات:
 
-```
-المتصفح                    الخادم (Next.js)              OpenAI API
-   │                           │                            │
+```text
    │── POST /api/chat ────────►│                            │
+   │                           │                            │
+المتصفح                    الخادم (Next.js)              OpenAI API
    │   { messages: [...] }     │── openai.chat.create() ──►│
    │                           │                            │
    │                           │◄── { role, content } ─────│
@@ -157,8 +157,8 @@ export async function POST(request: Request) {
 بدلاً من تكرار كود الأخطاء في كل مسار، نضعه في ملف واحد:
 
 ```typescript
-// معالجة أخطاء OpenAI — تعيد رسائل بالعربية حسب نوع الخطأ
 export function handleOpenAIError(error: unknown): NextResponse {
+// معالجة أخطاء OpenAI — تعيد رسائل بالعربية حسب نوع الخطأ
   const apiError = error as { status?: number; message?: string };
 
   if (apiError.status === 401) {
@@ -179,7 +179,7 @@ export function handleOpenAIError(error: unknown): NextResponse {
 
   // أي خطأ آخر
   return NextResponse.json(
-    { error: 'هنالك مشكلة في الخادم، نرجو المحاولة لاحقًا!' },
+    { error: 'هنالك مشكلة في الخادم, نرجو المحاولة لاحقًا!' },
     { status: 500 }
   );
 }
@@ -192,15 +192,15 @@ export function handleOpenAIError(error: unknown): NextResponse {
 ## 6. التحقق من مفتاح API (`validateApiKey`)
 
 ```typescript
-// يتحقق من وجود OPENAI_API_KEY في البيئة
 export function validateApiKey(): NextResponse | null {
+// يتحقق من وجود OPENAI_API_KEY في البيئة
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json(
       { error: 'يرجى التأكد من إضافتك ال API_KEY الخاص بك ومن صلاحيته!' },
       { status: 500 }
     );
   }
-  return null; // المفتاح موجود، لا خطأ
+  return null; // المفتاح موجود, لا خطأ
 }
 ```
 

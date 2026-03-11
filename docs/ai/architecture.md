@@ -1,4 +1,4 @@
-# المعمارية التفصيلية — علمني (web-learning-e1)
+﻿# المعمارية التفصيلية — علمني (web-learning-e1)
 
 > **📐 الدليل الشامل لبنية المشروع**
 > 
@@ -37,19 +37,19 @@
 
 ## 2. الطبقات المعمارية
 
-```
+```text
 ┌──────────────────────────────────────────────┐
 │     UI Layer (Pages + Components)            │ ← user interaction
 ├──────────────────────────────────────────────┤
-│       Presentation Layer (Layouts)           │ ← MainLayout، ToolBar، SideBar
+│       Presentation Layer (Layouts)           │ ← MainLayout, ToolBar, SideBar
 ├──────────────────────────────────────────────┤
-│    State Management (Contexts + Hooks)       │ ← ThemeContext، AppContext
+│    State Management (Contexts + Hooks)       │ ← ThemeContext, AppContext
 ├──────────────────────────────────────────────┤
-│     Business Logic (API utilities)           │ ← lib/api.ts، lib/apiErrors.ts
+│     Business Logic (API utilities)           │ ← lib/api.ts, lib/apiErrors.ts
 ├──────────────────────────────────────────────┤
 │       Server Layer (API Routes)              │ ← app/api/**/route.ts
 ├──────────────────────────────────────────────┤
-│    External Services (OpenAI SDK)            │ ← GPT-4o-mini، Whisper
+│    External Services (OpenAI SDK)            │ ← GPT-4o-mini, Whisper
 └──────────────────────────────────────────────┘
 ```
 
@@ -71,14 +71,14 @@
 ### 3.1 Context + Custom Hook Pattern
 
 ```typescript
-// ❌ الطريقة الخاطئة
 import { ThemeContext } from '@/app/context/ThemeContext';
+// ❌ الطريقة الخاطئة
 import { useContext } from 'react';
 const context = useContext(ThemeContext);
 
 // ✅ الطريقة الصحيحة
 import { useThemeMode } from '@/app/hooks/useThemeMode';
-const { mode، toggleTheme } = useThemeMode();
+const { mode, toggleTheme } = useThemeMode();
 ```
 
 **الفوائد:**
@@ -106,7 +106,7 @@ interface ThemeContextState {
 
 **التخزين المحلي:**
 ```typescript
-localStorage.setItem('theme-mode'، 'dark');
+localStorage.setItem('theme-mode', 'dark');
 const savedMode = localStorage.getItem('theme-mode');
 ```
 
@@ -130,7 +130,7 @@ interface AppContextState {
   setContextPreviousMessage: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   messages: ChatMessage[];
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
-  handleChatResponse: (response: ApiResponse<ChatCompletionData>، userContent: string) => boolean;
+  handleChatResponse: (response: ApiResponse<ChatCompletionData>, userContent: string) => boolean;
   clearMessages: () => void;
   showAlert: boolean;
   setShowAlert: (show: boolean) => void;
@@ -169,7 +169,7 @@ interface AppContextState {
 
 ### 4.1 البنية
 
-```
+```text
 app/api/
 ├── chat-completion/
 │   └── route.ts       ← GPT-4o-mini chat completions
@@ -187,14 +187,14 @@ app/api/
 **Input:**
 ```typescript
 {
-  messages: ChatMessage[]  // [{ role: 'user'، content: '...' }، ...]
+  messages: ChatMessage[]  // [{ role: 'user', content: '...' }, ...]
 }
 ```
 
 **Output (نجاح):**
 ```typescript
 {
-  role: 'assistant'،
+  role: 'assistant',
   content: 'AI response...'
 }
 ```
@@ -202,7 +202,7 @@ app/api/
 **التنفيذ:**
 ```typescript
 import OpenAI from 'openai';
-import { validateApiKey، handleOpenAIError } from '@/app/lib/apiErrors';
+import { validateApiKey, handleOpenAIError } from '@/app/lib/apiErrors';
 import { OPENAI_MODEL } from '@/app/config';
 
 export async function POST(request: Request) {
@@ -217,14 +217,14 @@ export async function POST(request: Request) {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   try {
     const completion = await openai.chat.completions.create({
-      model: OPENAI_MODEL،    // 'gpt-4o-mini'
-      messages،
+      model: OPENAI_MODEL,    // 'gpt-4o-mini'
+      messages,
     });
 
     return NextResponse.json({
-      role: completion.choices[0].message.role،
-      content: completion.choices[0].message.content،
-    }، { status: 200 });
+      role: completion.choices[0].message.role,
+      content: completion.choices[0].message.content,
+    }, { status: 200 });
 
   } catch (error) {
     return handleOpenAIError(error);  // رسالة عربية حسب status code
@@ -258,11 +258,11 @@ const formData = await request.formData();
 const audioFile = formData.get('audio') as File;
 
 const transcription = await openai.audio.transcriptions.create({
-  file: audioFile،
-  model: 'whisper-1'،
+  file: audioFile,
+  model: 'whisper-1',
 });
 
-return NextResponse.json({ text: transcription.text }، { status: 200 });
+return NextResponse.json({ text: transcription.text }, { status: 200 });
 ```
 
 ### 4.4 text-completion/route.ts
@@ -292,12 +292,12 @@ return NextResponse.json({ text: transcription.text }، { status: 200 });
 
 ### 5.1 البنية
 
-```
+```text
 app/[slug]/
-├── lecture/page.tsx       ← شرح القاعدة
-├── question/page.tsx      ← اختيار من متعدد
-├── conversation/page.tsx  ← تسجيل صوتي + تقييم
-└── translate/page.tsx     ← ترجمة EN↔AR
+├── lecture/page.tsx  // شرح القاعدة
+├── question/page.tsx  // اختيار من متعدد
+├── conversation/page.tsx  // تسجيل صوتي + تقييم
+└── translate/page.tsx  // ترجمة EN↔AR
 ```
 
 ### 5.2 Slug Parameter
@@ -308,7 +308,7 @@ export interface SlugPageParams {
 }
 
 export default function LecturePage({ params }: SlugPageParams) {
-  const { slug } = use(params);  // 'present-simple'، 'past-simple'، etc.
+  const { slug } = use(params);  // 'present-simple', 'past-simple', etc.
 }
 ```
 
@@ -326,8 +326,8 @@ export default function LecturePage({ params }: SlugPageParams) {
 **Prompt Example:**
 ```typescript
 const prompt: ChatMessage = {
-  role: 'user'،
-  content: `As an English teacher for A2 students، explain "${slug}" in Arabic.
+  role: 'user',
+  content: `As an English teacher for A2 students, explain "${slug}" in Arabic.
 
 Use simple examples and clear structure.
 
@@ -392,7 +392,7 @@ const { status, mediaBlobUrl, startRecording, stopRecording, clearBlobUrl, isSup
 
 **الحالة:**
 ```typescript
-const [isEnglishToArabic، setIsEnglishToArabic] = useState(true);
+const [isEnglishToArabic, setIsEnglishToArabic] = useState(true);
 
 const toggleDirection = () => {
   const newDirection = !isEnglishToArabic;
@@ -461,10 +461,10 @@ const toggleDirection = () => {
 **الأيقونات:**
 ```typescript
 const iconMap = {
-  MenuBook: MenuBookIcon،
-  Quiz: QuizIcon،
-  RecordVoiceOver: RecordVoiceOverIcon،
-  Translate: TranslateIcon،
+  MenuBook: MenuBookIcon,
+  Quiz: QuizIcon,
+  RecordVoiceOver: RecordVoiceOverIcon,
+  Translate: TranslateIcon,
 };
 ```
 
@@ -556,14 +556,14 @@ interface MainLayoutProps {
 ```typescript
 const createAppTheme = (mode: ThemeMode): Theme =>
   createTheme({
-    direction: 'rtl'،
+    direction: 'rtl',
     palette: {
-      mode،
+      mode,
       primary: {
-        main: mode === 'light' ? '#1565c0' : '#90caf9'،
-      }،
-    }،
-  }، arSA);
+        main: mode === 'light' ? '#1565c0' : '#90caf9',
+      },
+    },
+  }, arSA);
 ```
 
 **المكونات:**
@@ -580,8 +580,8 @@ import { prefixer } from 'stylis';
 import createCache from '@emotion/cache';
 
 const cacheRtl = createCache({
-  key: 'muirtl'،
-  stylisPlugins: [prefixer، rtlPlugin]،
+  key: 'muirtl',
+  stylisPlugins: [prefixer, rtlPlugin],
 });
 ```
 
@@ -635,9 +635,9 @@ const cacheRtl = createCache({
 
 ### 8.1 Chat Completion Flow
 
-```
+```text
 ┌─────────────┐
-│    Page     │ (lecture، question، translate)
+│    Page     │ (lecture, question, translate)
 └──────┬──────┘
        │ getChatCompletion([messages])
        ↓
@@ -655,12 +655,12 @@ const cacheRtl = createCache({
 ┌─────────────┐
 │ OpenAI API  │ (GPT-4o-mini)
 └──────┬──────┘
-       │ { role، content }
+       │ { role, content }
        ↓
 ┌─────────────┐
 │  API Route  │
 └──────┬──────┘
-       │ return { role، content }، status: 200
+       │ return { role, content }, status: 200
        ↓
 ┌─────────────┐
 │    Page     │ update UI
@@ -669,7 +669,7 @@ const cacheRtl = createCache({
 
 ### 8.2 Speech-to-Text Flow
 
-```
+```text
 ┌─────────────┐
 │ conversation│ (user records audio)
 │   page.tsx  │
@@ -695,7 +695,7 @@ const cacheRtl = createCache({
 ┌─────────────┐
 │  API Route  │
 └──────┬──────┘
-       │ return { text }، status: 200
+       │ return { text }, status: 200
        ↓
 ┌─────────────┐
 │ conversation│ display + evaluate pronunciation
@@ -715,7 +715,7 @@ const cacheRtl = createCache({
 export function validateApiKey(): NextResponse | null {
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json(
-      { error: 'مفتاح API غير موجود في متغيرات البيئة' }،
+      { error: 'مفتاح API غير موجود في متغيرات البيئة' },
       { status: 500 }
     );
   }
@@ -751,7 +751,7 @@ export interface ChatMessage {
   content: string;
 }
 
-export interface ApiResponse<T = Record<string، unknown>> {
+export interface ApiResponse<T = Record<string, unknown>> {
   data: T;
   status: number;
 }

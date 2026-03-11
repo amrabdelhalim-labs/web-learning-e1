@@ -1,4 +1,4 @@
-# الدرس الخامس: الصفحات الديناميكية — الشرح والأسئلة والمحادثة والترجمة 📄
+﻿# الدرس الخامس: الصفحات الديناميكية — الشرح والأسئلة والمحادثة والترجمة 📄
 
 > **هدف الدرس:** فهم كيف تعمل الصفحات الديناميكية الأربع وكيف يتفاعل كل قسم مع OpenAI بطريقة مختلفة
 
@@ -10,11 +10,11 @@
 
 تخيل أن `[slug]` مثل **قالب طباعة**: القالب واحد لكن المحتوى يتغير حسب الموضوع.
 
-```
-/Simple-present/lecture     → صفحة شرح + slug = "Simple-present"
-/plural-nouns/question      → صفحة أسئلة + slug = "plural-nouns"
-/Adverbs/conversation       → صفحة محادثة + slug = "Adverbs"
-/Simple-past/translate      → صفحة ترجمة + slug = "Simple-past"
+```text
+/Simple-present/lecture  // صفحة شرح + slug = "Simple-present"
+/plural-nouns/question  // صفحة أسئلة + slug = "plural-nouns"
+/Adverbs/conversation  // صفحة محادثة + slug = "Adverbs"
+/Simple-past/translate  // صفحة ترجمة + slug = "Simple-past"
 ```
 
 | القسم | الملف | نوع التفاعل | مسار API |
@@ -86,11 +86,11 @@ export default function LecturePage({ params }: SlugPageParams) {
 
 ### التسلسل:
 
-```
-المستخدم يختار "المضارع البسيط > شرح"
+```text
+params.slug = "Simple-present"
     │
     ▼
-params.slug = "Simple-present"
+المستخدم يختار "المضارع البسيط > شرح"
     │
     ▼
 system prompt: "اشرح درس Simple-present..."
@@ -112,13 +112,13 @@ GPT يعيد الشرح بالعربية
 تطلب سؤال اختيار من متعدد وتتحقق من الإجابة:
 
 ```typescript
-// بناء رسالة النظام لتوليد سؤال
 const systemMessage = {
+// بناء رسالة النظام لتوليد سؤال
   role: 'system' as const,
   content: `
     أنت معلم لغة إنجليزية.
     أنشئ سؤال اختيار من متعدد عن "${slug}" لمستوى A2.
-    الصيغة: السؤال، 4 خيارات (A-D)، والإجابة الصحيحة.
+    الصيغة: السؤال, 4 خيارات (A-D), والإجابة الصحيحة.
   `,
 };
 ```
@@ -138,8 +138,8 @@ const systemMessage = {
 الأكثر تعقيدًا — تستخدم تسجيل الصوت عبر خطاف مخصص يدعم جميع المتصفحات:
 
 ```typescript
-// خطاف مخصص للتسجيل الصوتي — يعمل على Chrome وSafari وiOS
 import { useAudioRecorder } from '@/app/hooks/useAudioRecorder';
+// خطاف مخصص للتسجيل الصوتي — يعمل على Chrome وSafari وiOS
 
 // استخدامه داخل المكون:
 const {
@@ -165,7 +165,7 @@ const {
 
 ### تسلسل المحادثة:
 
-```
+```text
 1. GPT يُولّد جملة إنجليزية
     │
     ▼
@@ -197,8 +197,8 @@ const {
 تدعم اتجاهين: إنجليزي → عربي وعربي → إنجليزي:
 
 ```typescript
-// توليد جملة للترجمة
 const generateSentence = async () => {
+// توليد جملة للترجمة
   const prompt = direction === 'en-to-ar'
     ? `أنشئ جملة إنجليزية بسيطة عن "${slug}" لمستوى A2`
     : `أنشئ جملة عربية بسيطة عن "${slug}" لمستوى A2`;
@@ -243,7 +243,7 @@ export default function Page({ params }: SlugPageParams) {
 
 // بنية SlugPageParams:
 interface SlugPageParams {
-  params: Promise<{ slug: string }>; // في Next.js 16، params أصبحت Promise
+  params: Promise<{ slug: string }>; // في Next.js 16, params أصبحت Promise
 }
 ```
 

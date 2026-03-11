@@ -10,9 +10,9 @@
 
 بدون Context: كل مكون يحتاج بياناته يجب أن نمررها من الأعلى عبر كل الطبقات (Prop Drilling).
 
-```
-❌ بدون Context:
+```text
 App → Layout → SideBar → ListItem → props → props → props
+❌ بدون Context:
 
 ✅ مع Context:
 App → Context.Provider
@@ -119,8 +119,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 ## 3. لماذا `useCallback`؟
 
 ```typescript
-// بدون useCallback — تُنشأ دالة جديدة عند كل render
 const handleChatResponse = (response, userContent) => { ... };
+// بدون useCallback — تُنشأ دالة جديدة عند كل render
 
 // مع useCallback — تبقى نفس الدالة ما لم تتغير المدخلات
 const handleChatResponse = useCallback((response, userContent) => { ... }, []);
@@ -166,8 +166,8 @@ export function useAppContext(): AppContextState {
 ### الاستخدام:
 
 ```typescript
-// في أي مكون داخل AppProvider:
 function Footer() {
+// في أي مكون داخل AppProvider:
   const { messageValue, setMessageValue, textButton } = useAppContext();
 
   return (
@@ -183,14 +183,14 @@ function Footer() {
 
 ## 5. تسلسل المزودين الكامل
 
-```
+```text
 RootLayout (layout.tsx)
   └── Providers (providers.tsx)
-        └── ThemeProviderWrapper     ← يوفر: mode, toggleTheme
+        └── ThemeProviderWrapper  // يوفر: mode, toggleTheme
               └── CacheProvider      ← RTL support
-                    └── ThemeProvider ← ألوان MUI
-                          └── AppProvider      ← يوفر: messages, drawer, alerts...
-                                └── {children} ← كل الصفحات والمكونات
+                    └── ThemeProvider  // ألوان MUI
+                          └── AppProvider  // يوفر: messages, drawer, alerts...
+                                └── {children}  // كل الصفحات والمكونات
 ```
 
 **قاعدة ذهبية:** المزود الذي يعتمد على مزود آخر يجب أن يكون **داخله**. المظهر لا يعتمد على شيء فيأتي أولاً.

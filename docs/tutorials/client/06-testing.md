@@ -1,4 +1,4 @@
-# الدرس السادس: اختبارات العميل — Vitest + Testing Library 🧪
+﻿# الدرس السادس: اختبارات العميل — Vitest + Testing Library 🧪
 
 > **هدف الدرس:** فهم كيفية إعداد وكتابة اختبارات للمكونات والخطافات ودوال API باستخدام Vitest
 
@@ -227,8 +227,8 @@ describe('useThemeMode()', () => {
 ## 7. تشغيل الاختبارات
 
 ```bash
-# تشغيل جميع الاختبارات
 npm test
+# تشغيل جميع الاختبارات
 
 # تشغيل مع المراقبة (إعادة التشغيل التلقائي)
 npm run test:watch
@@ -239,7 +239,7 @@ npm run test:coverage
 
 ### مثال على المخرجات:
 
-```
+```text
 ✓ app/tests/config.test.ts          (25 tests)
 ✓ app/tests/types.test.ts           (14 tests)
 ✓ app/tests/styles.test.ts          (19 tests)
@@ -283,7 +283,7 @@ describe('مقياس الخطوط (fontSize)', () => {
 
 describe('أنماط Paper المركزية', () => {
   it('يجب أن يحتوي paperBase على padding متجاوب', () => {
-    // padding متجاوب: 12px على الهواتف، 20px على الشاشات الكبيرة
+    // padding متجاوب: 12px على الهواتف, 20px على الشاشات الكبيرة
     expect(paperBase).toHaveProperty('p');
     expect((paperBase as Record<string, unknown>).p).toEqual({ xs: 1.5, sm: 2.5 });
   });
