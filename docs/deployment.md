@@ -9,10 +9,11 @@
 
 1. [Prerequisites](#1-prerequisites)
 2. [Environment Variables](#2-environment-variables)
-3. [Heroku Deployment](#3-heroku-deployment)
-4. [Alternative Platforms](#4-alternative-platforms)
-5. [Post-Deployment](#5-post-deployment)
-6. [Troubleshooting](#6-troubleshooting)
+3. [Docker Deployment](#3-docker-deployment)
+4. [Heroku Deployment](#4-heroku-deployment)
+5. [Alternative Platforms](#5-alternative-platforms)
+6. [Post-Deployment](#6-post-deployment)
+7. [Troubleshooting](#7-troubleshooting)
 
 ---
 
@@ -75,6 +76,49 @@ OPENAI_API_KEY=sk-proj-...your-key-here...
 ---
 
 ## 3. Heroku Deployment
+
+## 3. Docker Deployment
+
+### 3.1 Local run with Docker Compose
+
+```bash
+# 1. Create local env file
+cp .env.example .env
+
+# 2. Set required env var
+# OPENAI_API_KEY=sk-...
+
+# 3. Validate infra before build
+npm run check:docker-config
+
+# 4. Build and run
+docker compose up --build
+```
+
+### 3.2 Health check
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "ok",
+  "service": "web-learning-e1"
+}
+```
+
+### 3.3 CI/CD integration notes
+
+- CI enforces quality gates in order: format check -> lint -> typecheck -> tests -> docker config check -> build.
+- Trivy image scan runs with `HIGH,CRITICAL` threshold and `.trivyignore` policy file.
+- Container publish workflow triggers on semantic tags (`v*`) and supports manual `build-only` mode.
+
+---
+
+## 4. Heroku Deployment
 
 ### 3.1 Initial Setup
 

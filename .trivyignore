@@ -1,0 +1,9 @@
+# Keep this file explicit even when empty.
+# Only add CVE entries with documented justification and expiry date.
+# Temporary exception (review by 2026-05-31):
+# - Affects base image OS package (zlib) and not app code.
+# - Runtime remains non-root + minimal standalone output + health checks + CI gates.
+# - Remove this entry once upstream base image includes zlib 1.3.2-r0.
+# Trivy ignore file supports optional `exp:` for temporary ignores.
+# (No time component needed; date-only in RFC3339 layout is sufficient.)
+CVE-2026-22184 exp:2026-05-31

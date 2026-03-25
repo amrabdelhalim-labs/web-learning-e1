@@ -1,4 +1,4 @@
-﻿# علمني — منصة تعلم اللغة الإنجليزية بالذكاء الاصطناعي
+# علمني — منصة تعلم اللغة الإنجليزية بالذكاء الاصطناعي
 
 منصة تفاعلية لتعلم اللغة الإنجليزية مبنية بـ **Next.js 16 + TypeScript** مع **OpenAI GPT-4o-mini** لتوليد محتوى ديناميكي ودعم الوضع الليلي/النهاري باستخدام **Material-UI 7**.
 
@@ -401,8 +401,11 @@ localStorage.setItem('theme-mode', 'dark'); // أو 'light'
   "build": "بناء الإنتاج",
   "start": "تشغيل بيئة الإنتاج",
   "lint": "فحص الكود بـ ESLint",
+  "typecheck": "فحص TypeScript بدون إخراج",
   "format": "تنسيق الكود بـ Prettier (write mode)",
-  "format:check": "التحقق من تنسيق الكود (CI mode)"
+  "format:check": "التحقق من تنسيق الكود (CI mode)",
+  "check:docker-config": "التحقق من ملفات وإعدادات Docker",
+  "validate": "بوابة الجودة الكاملة قبل النشر"
 }
 ```
 
@@ -473,6 +476,26 @@ npm run test:coverage
 | **Heroku** | سهل الإعداد، إدارة بسيطة | $5-7/شهر (Eco/Basic) | بيئة تعلم |
 | **Railway** | $5 رصيد مجاني، بدون cold starts | Pay-as-you-go | Small apps |
 | **Netlify** | Netlify Edge، تكامل Git | مجاني (100GB) | Static + SSR |
+
+### تشغيل Docker محليًا
+
+```bash
+# 1. أنشئ ملف .env من المثال
+cp .env.example .env
+
+# 2. أضف OPENAI_API_KEY إلى .env
+
+# 3. ابنِ وشغّل الحاوية
+docker compose up --build
+
+# 4. تحقق من health endpoint
+curl http://localhost:3000/api/health
+```
+
+**الملفات المستخدمة:**
+- `Dockerfile` (multi-stage + non-root + healthcheck)
+- `docker-compose.yml` (env wiring + local runtime)
+- `.dockerignore` (تقليل build context وحماية الملفات الحساسة)
 
 ### نشر سريع على Vercel (الأسهل)
 

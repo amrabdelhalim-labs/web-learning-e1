@@ -1,4 +1,4 @@
-﻿# توجيهات AI — علمني (Teach Me / web-learning-e1)
+# توجيهات AI — علمني (Teach Me / web-learning-e1)
 
 > **📘 دليل البداية السريعة للمساعدين AI**
 > 
@@ -367,16 +367,10 @@ import type { ChatMessage, ApiResponse, SlugPageParams } from '@/app/types';
 ## 14. خطوات قبل الإيداع
 
 ```bash
-# 1. TypeScript check
-npx tsc --noEmit
+# 1. Full validation gate
+npm run validate
 
-# 2. Prettier check
-npm run format:check
-
-# 3. Tests
-npm test
-
-# 4. Build
+# 2. Build
 npm run build
 ```
 
@@ -386,7 +380,7 @@ npm run build
 
 ## 15. الاختبارات
 
-يحتوي المشروع على **55 اختبارًا** عبر **6 ملفات** باستخدام **Vitest 4.x**:
+يحتوي المشروع على **88 اختبارًا** عبر **9 ملفات** باستخدام **Vitest 4.x**:
 
 ```bash
 npm test            # تشغيل مرة واحدة

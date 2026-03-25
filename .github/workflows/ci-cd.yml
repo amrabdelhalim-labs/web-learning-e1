@@ -1,0 +1,148 @@
+name: Release Pipeline (Tag/Manual)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish image to GHCR'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  TRIVY_DISABLE_VEX_NOTICE: '1'
+
+concurrency:
+  group: ci-cd-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-build-test-scan:
+    name: Validate, Scan, and Publish Container
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      packages: write
+    outputs:
+      publish: ${{ steps.mode.outputs.publish }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Code Formatting
+        run: npm run format:check
+
+      - name: Run Lint Checks
+        run: npm run lint
+
+      - name: Run TypeScript Checks
+        run: npm run typecheck
+
+      - name: Run Unit Tests
+        run: npm run test
+
+      - name: Validate Docker Configuration
+        run: npm run check:docker-config
+
+      - name: Build Production Application
+        run: npm run build
+
+      - name: Install Trivy Scanner
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Build Runtime Image for Security Scan
+        run: docker build -t web-learning-e1:ci .
+
+      - name: Scan Runtime OS Vulnerabilities (Trivy)
+        run: |
+          trivy image \
+            --scanners vuln \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed \
+            --pkg-types os \
+            --ignorefile .trivyignore \
+            --no-progress \
+            --quiet \
+            --exit-code 1 \
+            web-learning-e1:ci
+
+      - name: Setup Docker Buildx Builder
+        uses: docker/setup-buildx-action@v3
+
+      - name: Resolve Publish Mode
+        id: mode
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=${{ inputs.publish }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Authenticate to GHCR
+        if: steps.mode.outputs.publish == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Docker Image Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=tag
+            type=sha
+
+      - name: Build Image and Optionally Publish
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ steps.mode.outputs.publish == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  cleanup-untagged:
+    name: Cleanup Untagged GHCR Versions
+    runs-on: ubuntu-latest
+    needs: release-build-test-scan
+    if: startsWith(github.ref, 'refs/tags/v') && needs.release-build-test-scan.outputs.publish == 'true'
+    permissions:
+      packages: write
+    steps:
+      - name: Cleanup untagged container versions (best effort)
+        continue-on-error: true
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          min-versions-to-keep: 10
+          delete-only-untagged-versions: true

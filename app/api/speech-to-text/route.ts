@@ -2,15 +2,14 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { validateApiKey, handleOpenAIError } from '@/app/lib/apiErrors';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(request: Request) {
   const keyError = validateApiKey();
   if (keyError) return keyError;
 
   try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
     const formData = await request.formData();
     const audioFile = formData.get('file') as File | null;
 

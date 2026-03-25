@@ -3,15 +3,14 @@ import OpenAI from 'openai';
 import { validateApiKey, handleOpenAIError } from '@/app/lib/apiErrors';
 import { OPENAI_MODEL } from '@/app/config';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(request: Request) {
   const keyError = validateApiKey();
   if (keyError) return keyError;
 
   try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
     const req = await request.json();
 
     const response = await openai.chat.completions.create({
