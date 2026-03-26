@@ -493,9 +493,10 @@ curl http://localhost:3000/api/health
 ```
 
 **الملفات المستخدمة:**
-- `Dockerfile` (multi-stage + non-root + healthcheck)
+- `Dockerfile` (multi-stage + non-root + healthcheck + `apk upgrade` في مرحلة التشغيل لتقليل ثغرات طبقة OS)
 - `docker-compose.yml` (env wiring + local runtime)
 - `.dockerignore` (تقليل build context وحماية الملفات الحساسة)
+- سير الإصدار في CI: بناء صورة محلية للفحص عبر Buildx + Trivy Action ثم دفع GHCR عند التاغ أو التشغيل اليدوي (انظر `docs/deployment.md`)
 
 ### نشر سريع على Vercel (الأسهل)
 

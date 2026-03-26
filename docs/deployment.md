@@ -112,9 +112,10 @@ Expected response:
 
 ### 3.3 CI/CD integration notes
 
-- CI enforces quality gates in order: format check -> lint -> typecheck -> tests -> docker config check -> build.
-- Trivy image scan runs with `HIGH,CRITICAL` threshold and `.trivyignore` policy file.
-- Container publish workflow triggers on semantic tags (`v*`) and supports manual `build-only` mode.
+- CI enforces quality gates in order: format check → lint → typecheck → tests → docker config check → Next.js production build.
+- **Runtime image hardening:** the Dockerfile `runner` stage runs `apk upgrade --no-cache` before creating the non-root `nextjs` user so Alpine OS packages receive security fixes at build time (same pattern as hardened Next.js images in sibling repos).
+- **Container scan pipeline:** after quality gates, the workflow uses Docker Buildx + `docker/build-push-action` to build a **local** image tag (`web-learning-e1:ci`) with GitHub Actions cache (`cache-from` / `cache-to` type=gha), then runs **`aquasecurity/trivy-action`** against that image (vulnerability scanner only, `HIGH,CRITICAL`, `ignore-unfixed`, `.trivyignore`). This replaces slower apt-based Trivy installs and keeps scan policy versioned with the repo.
+- **Publish:** a second `build-push-action` step pushes to GHCR when triggered by tag `v*` (auto-publish) or manual `workflow_dispatch` with publish enabled, reusing GHA layer cache from the scan build where possible.
 
 ---
 
