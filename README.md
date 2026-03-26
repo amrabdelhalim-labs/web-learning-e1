@@ -496,7 +496,8 @@ curl http://localhost:3000/api/health
 - `Dockerfile` (multi-stage + non-root + healthcheck + `apk upgrade` في مرحلة التشغيل لتقليل ثغرات طبقة OS)
 - `docker-compose.yml` (env wiring + local runtime)
 - `.dockerignore` (تقليل build context وحماية الملفات الحساسة)
-- سير الإصدار في CI: بناء صورة محلية للفحص عبر Buildx + Trivy Action ثم دفع GHCR عند التاغ أو التشغيل اليدوي (انظر `docs/deployment.md`)
+- `.trivyignore` (سياسة مُصدَّرة في Git: استثناءات CVE مؤقتة بتواريخ `exp:` لثغرات طبقة OS مثل zlib، ولتبعيات Next.js المجمّعة تحت `node_modules/next/dist/compiled` التي لا تُحدَّث عبر `overrides` في `package.json`)
+- سير الإصدار في CI: بناء صورة محلية `web-learning-e1:ci` للفحص عبر Buildx + Trivy (HIGH/CRITICAL، `ignore-unfixed`) مع `trivyignores: '.trivyignore'`، ثم دفع GHCR عند وسم `v*` أو التشغيل اليدوي (التفاصيل في `docs/deployment.md`)
 
 ### نشر سريع على Vercel (الأسهل)
 

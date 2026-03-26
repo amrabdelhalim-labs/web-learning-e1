@@ -14,6 +14,15 @@
 5. [Alternative Platforms](#5-alternative-platforms)
 6. [Post-Deployment](#6-post-deployment)
 7. [Troubleshooting](#7-troubleshooting)
+8. [Platform-Specific Notes](#8-platform-specific-notes)
+9. [Deployment Checklist](#9-deployment-checklist)
+10. [Continuous Deployment](#10-continuous-deployment)
+11. [Rollback Strategy](#11-rollback-strategy)
+12. [Scaling](#12-scaling)
+13. [Security Considerations](#13-security-considerations)
+14. [Backup Strategy](#14-backup-strategy)
+15. [Cost Estimation](#15-cost-estimation)
+16. [Support & Resources](#16-support--resources)
 
 ---
 
@@ -75,8 +84,6 @@ OPENAI_API_KEY=sk-proj-...your-key-here...
 
 ---
 
-## 3. Heroku Deployment
-
 ## 3. Docker Deployment
 
 ### 3.1 Local run with Docker Compose
@@ -110,18 +117,23 @@ Expected response:
 }
 ```
 
-### 3.3 CI/CD integration notes
+### 3.3 CI/CD, GHCR, and container vulnerability policy
 
-- CI enforces quality gates in order: format check → lint → typecheck → tests → docker config check → Next.js production build.
-- **Runtime image hardening:** the Dockerfile `runner` stage runs `apk upgrade --no-cache` before creating the non-root `nextjs` user so Alpine OS packages receive security fixes at build time (same pattern as hardened Next.js images in sibling repos).
-- **Container scan pipeline:** after quality gates, the workflow uses Docker Buildx + `docker/build-push-action` to build a **local** image tag (`web-learning-e1:ci`) with GitHub Actions cache (`cache-from` / `cache-to` type=gha), then runs **`aquasecurity/trivy-action`** against that image (vulnerability scanner only, `HIGH,CRITICAL`, `ignore-unfixed`, `.trivyignore`). This replaces slower apt-based Trivy installs and keeps scan policy versioned with the repo.
-- **Publish:** a second `build-push-action` step pushes to GHCR when triggered by tag `v*` (auto-publish) or manual `workflow_dispatch` with publish enabled, reusing GHA layer cache from the scan build where possible.
+- **Workflow:** `.github/workflows/ci-cd.yml` runs on SemVer tags `v*` or on `workflow_dispatch` (optional publish).
+- **Quality gate order:** `format:check` → `lint` → `typecheck` → `npm test` → `check:docker-config` → `npm run build` (production Next.js build).
+- **Runtime image hardening:** the Dockerfile `runner` stage runs `apk upgrade --no-cache` before creating the non-root `nextjs` user so Alpine packages pick up security fixes available at build time.
+- **npm supply chain:** root `package.json` uses **`overrides`** for selected transitive packages (for example `picomatch`, `undici`, `tar`, and the `glob` / `cross-spawn` / `minimatch` family) so `npm ci` resolves patched versions where the public registry provides fixes. Overrides do **not** replace code inside **`node_modules/next/dist/compiled`** (Next.js vendored bundles).
+- **Trivy image scan:** Docker Buildx + `docker/build-push-action` builds a **local** tag `web-learning-e1:ci` with GHA cache (`cache-from` / `cache-to`, `type=gha`), then `aquasecurity/trivy-action` scans that image with `scanners: vuln`, severities `HIGH,CRITICAL`, and `ignore-unfixed: true`.
+- **`.trivyignore` (versioned policy):**
+  - Documents **temporary** OS-level exceptions (for example Alpine **zlib**) with `exp:` review dates when the base image lags published advisories.
+  - Documents **Next.js compiled dependencies** (`glob`, `minimatch`, `tar`, `cross-spawn`, …): Trivy’s **node-pkg** layer can still report HIGH findings for those vendored versions because they are not controlled by npm `overrides`. **Directory `skip-dirs` alone does not suppress those merged findings.** Matching CVE IDs are listed with `exp:` dates; remove or refresh lines when upgrading **Next.js** or when advisories clear.
+- **Publish:** a second `build-push-action` step pushes to **GHCR** when the workflow decides to publish, using `docker/metadata-action` tags (`type=ref,event=tag`, `type=sha`) and reusing GHA layer cache where possible.
 
 ---
 
 ## 4. Heroku Deployment
 
-### 3.1 Initial Setup
+### 4.1 Initial Setup
 
 #### Install Heroku CLI
 
@@ -142,7 +154,7 @@ heroku --version
 heroku login
 ```
 
-### 3.2 Create Heroku App
+### 4.2 Create Heroku App
 
 ```bash
 # Option 1: Let Heroku generate a name
@@ -154,7 +166,7 @@ heroku create my-ai-learning-app
 # Note the app URL: https://my-ai-learning-app.herokuapp.com
 ```
 
-### 3.3 Configure Environment Variables
+### 4.3 Configure Environment Variables
 
 ```bash
 # Set OpenAI API Key (REQUIRED)
@@ -164,7 +176,7 @@ heroku config:set OPENAI_API_KEY=sk-proj-...your-key-here...
 heroku config
 ```
 
-### 3.4 Deploy to Heroku
+### 4.4 Deploy to Heroku
 
 #### Method 1: Git Push (Recommended)
 
@@ -187,7 +199,7 @@ git push heroku your-branch:main
 3. Enable Automatic Deploys (optional)
 4. Click "Deploy Branch"
 
-### 3.5 Post-Deployment
+### 4.5 Post-Deployment
 
 ```bash
 # Open the app in browser
@@ -205,9 +217,9 @@ heroku restart
 
 ---
 
-## 4. Alternative Platforms
+## 5. Alternative Platforms
 
-### 4.1 Vercel (Recommended for Next.js)
+### 5.1 Vercel (Recommended for Next.js)
 
 **Advantages:**
 - Zero-config Next.js deployment
@@ -237,7 +249,7 @@ vercel --prod
 3. Add `OPENAI_API_KEY` in Environment Variables
 4. Click Deploy
 
-### 4.2 Netlify
+### 5.2 Netlify
 
 ```bash
 # Install Netlify CLI
@@ -250,7 +262,7 @@ npm run build
 netlify deploy --prod
 ```
 
-### 4.3 Railway
+### 5.3 Railway
 
 ```bash
 # Install Railway CLI
@@ -269,7 +281,7 @@ railway variables set OPENAI_API_KEY=sk-proj-...
 railway up
 ```
 
-### 4.4 Render
+### 5.4 Render
 
 1. Go to https://render.com
 2. Create a new Web Service
@@ -279,7 +291,7 @@ railway up
 6. Add Environment Variable: `OPENAI_API_KEY`
 7. Click Create Web Service
 
-### 4.5 Self-Hosted (VPS)
+### 5.5 Self-Hosted (VPS)
 
 **Requirements:**
 - Ubuntu 22.04+ or similar Linux distribution
@@ -336,9 +348,9 @@ server {
 
 ---
 
-## 5. Post-Deployment
+## 6. Post-Deployment
 
-### 5.1 Health Checks
+### 6.1 Health Checks
 
 Test all endpoints after deployment:
 
@@ -357,7 +369,7 @@ curl -X POST https://your-app.herokuapp.com/api/text-completion \
   -d '{"prompt":"Test prompt"}'
 ```
 
-### 5.2 Monitoring
+### 6.2 Monitoring
 
 #### Heroku Logs
 
@@ -379,7 +391,7 @@ Consider adding error monitoring:
 - **LogRocket:** https://logrocket.com
 - **Datadog:** https://www.datadoghq.com
 
-### 5.3 Performance Optimization
+### 6.3 Performance Optimization
 
 **Enable Compression (Heroku):**
 Already enabled by Next.js automatically.
@@ -392,9 +404,9 @@ Not applicable (this app has no database).
 
 ---
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
-### 6.1 Build Failures
+### 7.1 Build Failures
 
 #### Issue: TypeScript compilation errors
 
@@ -418,7 +430,7 @@ git commit -m "chore: add package-lock.json"
 
 **Fix:** Always commit `package-lock.json` for reproducible builds.
 
-### 6.2 Runtime Errors
+### 7.2 Runtime Errors
 
 #### Issue: OPENAI_API_KEY not set
 
@@ -489,7 +501,7 @@ heroku logs --tail --app <your-app>
 heroku ps --app <your-app>
 ```
 
-### 6.3 Performance Issues
+### 7.3 Performance Issues
 
 #### Issue: Slow API responses
 
@@ -513,7 +525,7 @@ heroku ps --app <your-app>
 - Upgrade Heroku dyno type (from `eco` to `basic` or `standard-1x`)
 - Check for memory leaks in custom code
 
-### 6.4 Debugging Tips
+### 7.4 Debugging Tips
 
 ```bash
 # Run production build locally
@@ -532,9 +544,9 @@ npm test
 
 ---
 
-## 7. Platform-Specific Notes
+## 8. Platform-Specific Notes
 
-### 7.1 Heroku
+### 8.1 Heroku
 
 **Free Tier Limitations (Eco Dynos):**
 - App sleeps after 30 minutes of inactivity
@@ -549,7 +561,7 @@ npm test
 **Buildpacks:**
 Heroku auto-detects Node.js and uses the official buildpack. No manual configuration needed.
 
-### 7.2 Vercel
+### 8.2 Vercel
 
 **Advantages for Next.js:**
 - Optimized for Next.js (made by the same team)
@@ -562,7 +574,7 @@ Heroku auto-detects Node.js and uses the official buildpack. No manual configura
 - Function size limit: 50MB
 - Free tier: 100GB bandwidth/month
 
-### 7.3 Railway
+### 8.3 Railway
 
 **Advantages:**
 - Simple pricing: $5 usage credit/month (free)
@@ -575,7 +587,7 @@ Heroku auto-detects Node.js and uses the official buildpack. No manual configura
 
 ---
 
-## 8. Deployment Checklist
+## 9. Deployment Checklist
 
 Before deploying to production:
 
@@ -591,7 +603,7 @@ Before deploying to production:
 
 ---
 
-## 9. Continuous Deployment
+## 10. Continuous Deployment
 
 ### Option 1: GitHub Actions + Heroku
 
@@ -629,7 +641,7 @@ Automatically enabled when you connect GitHub repo to Vercel. Every push to main
 
 ---
 
-## 10. Rollback Strategy
+## 11. Rollback Strategy
 
 ### Heroku
 
@@ -668,7 +680,7 @@ git push heroku main --force
 
 ---
 
-## 11. Scaling
+## 12. Scaling
 
 ### Heroku
 
@@ -701,7 +713,7 @@ k6 run test.js
 
 ---
 
-## 12. Security Considerations
+## 13. Security Considerations
 
 ### Environment Variables
 
@@ -766,7 +778,7 @@ module.exports = nextConfig;
 
 ---
 
-## 13. Backup Strategy
+## 14. Backup Strategy
 
 ### Code Backup
 
@@ -790,7 +802,7 @@ heroku config -s > heroku-env-backup.txt
 
 ---
 
-## 14. Cost Estimation
+## 15. Cost Estimation
 
 ### Heroku Pricing
 
@@ -822,7 +834,7 @@ heroku config -s > heroku-env-backup.txt
 
 ---
 
-## 15. Support & Resources
+## 16. Support & Resources
 
 ### Official Documentation
 
@@ -843,6 +855,6 @@ heroku config -s > heroku-env-backup.txt
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** March 2, 2026  
+**Version:** 1.1.0  
+**Last Updated:** March 26, 2026  
 **Maintained by:** Amr Abdelhalim
