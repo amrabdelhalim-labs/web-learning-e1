@@ -26,7 +26,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/stylis-plugin-rtl": "^7.3.7",
-    "next": "16.0.9",
+    "next": "16.2.1",
     "openai": "^6.16.0",
     "react": "19.2.2",
     "react-dom": "19.2.2",
@@ -49,5 +49,13 @@
     "prettier": "^3.8.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
+  },
+  "overrides": {
+    "cross-spawn": "^7.0.6",
+    "glob": "^10.5.0",
+    "minimatch": "^9.0.8",
+    "picomatch": "^4.0.4",
+    "tar": "^7.5.11",
+    "undici": "^7.24.6"
   }
 }

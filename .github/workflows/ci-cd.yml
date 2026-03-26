@@ -78,6 +78,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # node-pkg aggregates Next vendored deps; skip-dirs does not clear those findings.
+      # Documented CVE ignores with expiry live in .trivyignore (Next compiled + OS zlib).
       - name: Scan runtime image vulnerabilities (Trivy)
         uses: aquasecurity/trivy-action@v0.24.0
         with:
