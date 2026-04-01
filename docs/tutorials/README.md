@@ -19,6 +19,8 @@
 | إدارة الحالة | React Context + Custom Hooks |
 | المظهر | Dark/Light Mode مع تخزين محلي |
 
+> ملاحظة: الشروحات التعليمية هنا تشرح الفكرة والأنماط. الحقائق التشغيلية النهائية (الأوامر، العقود، والنسخ) موجودة في `README.md` و`docs/ai/architecture.md` و`docs/deployment.md`.
+
 ---
 
 ## فهرس الدروس

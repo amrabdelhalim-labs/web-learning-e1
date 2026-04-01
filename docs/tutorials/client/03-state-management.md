@@ -1,6 +1,8 @@
 # الدرس الثالث: إدارة الحالة — Context و Custom Hooks 🔄
 
 > **هدف الدرس:** فهم كيف نُدير حالة التطبيق المشتركة باستخدام نمط Context + Provider + Custom Hook
+>
+> **ملاحظة تحديث:** المرجع التنفيذي النهائي لنموذج الحالة الحالي في `app/context/AppContext.tsx` و`app/hooks/useAppContext.ts`.
 
 ---
 
