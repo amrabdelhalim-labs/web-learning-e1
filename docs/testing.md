@@ -22,6 +22,8 @@
 - `app/tests/dockerConfig.test.ts`
 - `app/tests/lessonSidebarInteraction.test.tsx`
 - `app/tests/markdownRendererDirectionality.test.tsx`
+- `app/tests/useActionCycle.test.tsx`
+- `app/tests/interactionStateModel.test.tsx`
 
 ## Key Regression Coverage
 
@@ -34,8 +36,13 @@
   - Arabic-only and English-only paragraph direction
   - mixed Arabic/English prose with inline code
   - punctuation and symbol stability in mixed bidi lines (`؟ ? : / = @ , ؛`)
+  - sentence-ending punctuation anchoring in headings/lists/paragraphs
   - table headers/cells direction by content
   - fenced code blocks remain LTR and readable
+- Conditional action buttons:
+  - lifecycle coverage for disable/enable transitions via reusable action-cycle state
+  - translation flow: input stays visible after submit, then locks until new sentence reset
+  - conversation flow: confirm and recording-start controls lock after review while playback remains available
 
 ## Commands
 

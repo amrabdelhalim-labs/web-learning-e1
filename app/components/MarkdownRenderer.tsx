@@ -22,7 +22,8 @@ export default function MarkdownRenderer({ content, color }: MarkdownRendererPro
   const textColor = color || theme.palette.text.primary;
   const getInlineDirection = (children: ReactNode, href?: string) => {
     const text = getNodeText(children);
-    const technical = isLikelyTechnicalToken(children) || (href ? isLikelyTechnicalToken(href) : false);
+    const technical =
+      isLikelyTechnicalToken(children) || (href ? isLikelyTechnicalToken(href) : false);
     if (technical) return 'ltr' as const;
     return getTextDirection(text);
   };
@@ -84,7 +85,13 @@ export default function MarkdownRenderer({ content, color }: MarkdownRendererPro
       <Box
         component="li"
         dir={getTextDirection(children)}
-        sx={{ my: 0.5, lineHeight: 1.8, color: textColor, textAlign: 'start', unicodeBidi: 'plaintext' }}
+        sx={{
+          my: 0.5,
+          lineHeight: 1.8,
+          color: textColor,
+          textAlign: 'start',
+          unicodeBidi: 'plaintext',
+        }}
       >
         {children}
       </Box>
@@ -167,7 +174,9 @@ export default function MarkdownRenderer({ content, color }: MarkdownRendererPro
         }
       })();
       const isAutolinkText = rawText === href || rawText === decodedHref;
-      const { core, trailing } = isAutolinkText ? splitTrailingPunctuation(rawText) : { core: rawText, trailing: '' };
+      const { core, trailing } = isAutolinkText
+        ? splitTrailingPunctuation(rawText)
+        : { core: rawText, trailing: '' };
       const safeHref =
         href && isAutolinkText
           ? splitTrailingPunctuation(decodedHref).core.replace(/(%D8%8C|%D8%9B|%D8%9F)+$/i, '')

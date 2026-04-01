@@ -19,9 +19,11 @@ import { getChatCompletion } from '@/app/lib/api';
 import { useAppContext } from '@/app/hooks/useAppContext';
 import { getRandomLoadingText } from '@/app/config';
 import MarkdownRenderer from '@/app/components/MarkdownRenderer';
+import { useActionCycle } from '@/app/hooks/useActionCycle';
 import {
   CONTENT_BOTTOM_MARGIN,
   answerPaperSx,
+  compactFeedbackCardSx,
   sectionColors,
   neutralPaperSx,
   fontSize,
@@ -38,7 +40,14 @@ export default function TranslatePage({ params }: SlugPageParams) {
   const [translateLoading, setTranslateLoading] = useState(false);
   const hasInitialized = useRef(false);
   const [isEnglishToArabic, setIsEnglishToArabic] = useState(true);
-  const [checkDisabled, setCheckDisabled] = useState(false);
+  const hasInput = value.trim().length > 0;
+  const {
+    isLocked: isTranslationLocked,
+    isActionDisabled: isCheckDisabled,
+    beginSubmit: beginCheckSubmit,
+    finishSubmit: finishCheckSubmit,
+    resetCycle: resetCheckCycle,
+  } = useActionCycle({ hasInput });
 
   const {
     setContextPreviousMessage,
@@ -79,7 +88,7 @@ export default function TranslatePage({ params }: SlugPageParams) {
     response: ApiResponse<ChatCompletionData>,
     messageType: 'question' | 'answer',
     usedPrompt?: ChatMessage
-  ) => {
+  ): boolean => {
     if (response.status === 200) {
       if (messageType === 'question') {
         setMessage(response.data.content || '');
@@ -96,9 +105,11 @@ export default function TranslatePage({ params }: SlugPageParams) {
           },
         ]);
       }
+      return true;
     } else {
       setShowAlert(true);
       setErrorMessage('حدث خطأ');
+      return false;
     }
   };
 
@@ -107,7 +118,7 @@ export default function TranslatePage({ params }: SlugPageParams) {
     setValue('');
     setShowFooterButton(false);
     setLoading(true);
-    setCheckDisabled(false);
+    resetCheckCycle();
 
     const currentPrompt = getPrompt(direction);
     const response = await getChatCompletion([currentPrompt]);
@@ -123,6 +134,7 @@ export default function TranslatePage({ params }: SlugPageParams) {
     setValue('');
     setShowFooterButton(false);
     setLoading(true);
+    resetCheckCycle();
 
     const newSentencePrompt = isEnglishToArabic
       ? `Give me a DIFFERENT simple English sentence about "${slug}" for A2 level students. Make sure it's different from the previous sentences. Only provide the English sentence, nothing else.`
@@ -139,6 +151,7 @@ export default function TranslatePage({ params }: SlugPageParams) {
   };
 
   const checkAnswer = async () => {
+    beginCheckSubmit();
     setTranslateLoading(true);
 
     const evaluationPrompt = isEnglishToArabic
@@ -176,10 +189,9 @@ export default function TranslatePage({ params }: SlugPageParams) {
       { role: 'user', content: evaluationPrompt },
     ]);
 
-    checkResponse(response, 'answer');
-    setValue('');
+    const success = checkResponse(response, 'answer');
     setTranslateLoading(false);
-    setCheckDisabled(true);
+    finishCheckSubmit(success);
   };
 
   const toggleDirection = () => {
@@ -224,6 +236,7 @@ export default function TranslatePage({ params }: SlugPageParams) {
               <IconButton
                 onClick={toggleDirection}
                 color="primary"
+                disabled={isTranslationLocked || translateLoading}
                 sx={{
                   backgroundColor: 'action.hover',
                   '&:hover': { backgroundColor: 'action.selected' },
@@ -270,7 +283,11 @@ export default function TranslatePage({ params }: SlugPageParams) {
               multiline
               rows={2}
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              onChange={(e) => {
+                setValue(e.target.value);
+                resetCheckCycle();
+              }}
+              disabled={isTranslationLocked || translateLoading}
               inputProps={{ dir: isEnglishToArabic ? 'rtl' : 'ltr' }}
               sx={{
                 direction: isEnglishToArabic ? 'rtl' : 'ltr',
@@ -280,7 +297,7 @@ export default function TranslatePage({ params }: SlugPageParams) {
               variant="contained"
               sx={{ display: 'block', mt: 2, mx: 'auto' }}
               onClick={checkAnswer}
-              disabled={!value.trim() || translateLoading || checkDisabled}
+              disabled={isCheckDisabled}
             >
               تأكد من الترجمة
             </Button>
@@ -292,6 +309,7 @@ export default function TranslatePage({ params }: SlugPageParams) {
               sx={{
                 mt: 3,
                 ...answerPaperSx(theme.palette.mode),
+                ...compactFeedbackCardSx,
               }}
             >
               {translateLoading ? (

@@ -19,6 +19,7 @@ import {
   CONTENT_BOTTOM_MARGIN,
   questionPaperSx,
   answerPaperSx,
+  compactFeedbackCardSx,
   sectionColors,
   fontSize,
 } from '@/app/styles';
@@ -232,7 +233,7 @@ export default function QuestionPage({ params }: SlugPageParams) {
                   elevation={0}
                   sx={{
                     ...answerPaperSx(theme.palette.mode),
-                    p: 2,
+                    ...compactFeedbackCardSx,
                   }}
                 >
                   <Typography

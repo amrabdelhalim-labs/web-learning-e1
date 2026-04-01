@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import MarkdownRenderer from '@/app/components/MarkdownRenderer';
-import { getTextDirection, isLikelyTechnicalToken, splitTrailingPunctuation } from '@/app/lib/textDirection';
+import {
+  getTextDirection,
+  isLikelyTechnicalToken,
+  splitTrailingPunctuation,
+} from '@/app/lib/textDirection';
 
 describe('getTextDirection()', () => {
   it('detects Arabic-first content as rtl', () => {
@@ -32,6 +36,11 @@ describe('getTextDirection()', () => {
       core: '/api/health',
       trailing: '?',
     });
+  });
+
+  it('prefers rtl for mixed sentences ending with Arabic punctuation', () => {
+    expect(getTextDirection('The fix is in auth.ts، صح؟')).toBe('rtl');
+    expect(getTextDirection('JWT_SECRET=test هل الإعداد صحيح؟')).toBe('rtl');
   });
 });
 
@@ -132,7 +141,7 @@ The fix is in \`auth.ts\`, صح؟
     expect(assignmentToken).toHaveStyle({ direction: 'ltr' });
 
     const englishMixedLine = screen.getByText(/The fix is in/);
-    expect(englishMixedLine).toHaveAttribute('dir', 'ltr');
+    expect(englishMixedLine).toHaveAttribute('dir', 'rtl');
 
     const link = screen.getByRole('link', { name: 'https://nextjs.org/docs' });
     expect(link).toHaveAttribute('dir', 'ltr');
@@ -142,5 +151,29 @@ The fix is in \`auth.ts\`, صح؟
 
     const blockquote = container.querySelector('blockquote');
     expect(blockquote).toHaveAttribute('dir', 'rtl');
+  });
+
+  it('anchors final punctuation correctly in headings, lists, and mixed paragraphs', () => {
+    const content = `## هل تم الإصلاح النهائي؟
+
+- افتح \`/api/health\` ثم تحقق من الحالة.
+- هل جرّبت \`JWT_SECRET=test\`؟
+
+The patch is complete, صح؟
+`;
+
+    render(<MarkdownRenderer content={content} />);
+
+    const heading = screen.getByRole('heading', { name: 'هل تم الإصلاح النهائي؟' });
+    expect(heading).toHaveAttribute('dir', 'rtl');
+
+    const apiListItem = screen.getByText(/افتح/);
+    expect(apiListItem.closest('li')).toHaveAttribute('dir', 'rtl');
+
+    const questionListItem = screen.getByText(/هل جرّبت/);
+    expect(questionListItem.closest('li')).toHaveAttribute('dir', 'rtl');
+
+    const mixedParagraph = screen.getByText(/The patch is complete, صح؟/);
+    expect(mixedParagraph).toHaveAttribute('dir', 'rtl');
   });
 });

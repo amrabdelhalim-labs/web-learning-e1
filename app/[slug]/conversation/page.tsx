@@ -17,12 +17,14 @@ import MainLayout from '@/app/layouts/MainLayout';
 import { getChatCompletion, getTextCompletion, getTranscription } from '@/app/lib/api';
 import { useAppContext } from '@/app/hooks/useAppContext';
 import { useAudioRecorder } from '@/app/hooks/useAudioRecorder';
+import { useActionCycle } from '@/app/hooks/useActionCycle';
 import { getRandomLoadingText } from '@/app/config';
 import MarkdownRenderer from '@/app/components/MarkdownRenderer';
 import {
   CONTENT_BOTTOM_MARGIN,
   questionPaperSx,
   answerPaperSx,
+  compactFeedbackCardSx,
   sectionColors,
   fontSize,
 } from '@/app/styles';
@@ -53,6 +55,13 @@ export default function ConversationPage({ params }: SlugPageParams) {
     isSupported: isRecorderSupported,
     error: recorderError,
   } = useAudioRecorder();
+  const {
+    isLocked: isReviewLocked,
+    isActionDisabled: isConfirmDisabled,
+    beginSubmit: beginConfirmSubmit,
+    finishSubmit: finishConfirmSubmit,
+    resetCycle: resetConfirmCycle,
+  } = useActionCycle({ hasInput: Boolean(mediaBlobUrl) });
 
   const {
     setContextPreviousMessage,
@@ -83,7 +92,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
       | ApiResponse<TextCompletionData>
       | ApiResponse<TranscriptionData>,
     messageType: 'question' | 'answer'
-  ) => {
+  ): boolean => {
     if (response.status === 200) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = response.data as any;
@@ -101,15 +110,18 @@ export default function ConversationPage({ params }: SlugPageParams) {
         const responseText = (data.text as string) || (data.content as string) || String(data);
         setAssistantAnswer(responseText);
       }
+      return true;
     } else {
       setShowAlert(true);
       setErrorMessage('حدث خطأ');
+      return false;
     }
   };
 
   const getSentence = async () => {
     clearBlobUrl();
     setAssistantAnswer('');
+    resetConfirmCycle();
     setShowFooterButton(false);
     setLoading(true);
 
@@ -124,6 +136,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
     clearBlobUrl();
     setAssistantAnswer('');
     setSentence('');
+    resetConfirmCycle();
     setShowFooterButton(false);
     setLoading(true);
 
@@ -140,7 +153,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
     setLoading(false);
   };
 
-  const getConfirmSentence = async (confirmSentence: string) => {
+  const getConfirmSentence = async (confirmSentence: string): Promise<boolean> => {
     const response = await getTextCompletion(
       `You are an English pronunciation evaluator for A2 level Arabic-speaking students.
 
@@ -161,21 +174,36 @@ export default function ConversationPage({ params }: SlugPageParams) {
         Your feedback:`
     );
 
-    checkResponse(response, 'answer');
+    const success = checkResponse(response, 'answer');
     setTranscriptionLoading(false);
+    return success;
   };
 
   const fetchText = async (blobUrl: string) => {
+    beginConfirmSubmit();
+    setTranscriptionLoading(true);
     try {
       const response = await getTranscription(blobUrl);
-      setTranscriptionLoading(true);
+      if (response.status !== 200) {
+        setTranscriptionLoading(false);
+        finishConfirmSubmit(false);
+        return;
+      }
       setSentence(response.data.text);
-      getConfirmSentence(response.data.text);
+      const success = await getConfirmSentence(response.data.text);
+      finishConfirmSubmit(success);
     } catch (error) {
       console.error(error);
       setTranscriptionLoading(false);
+      finishConfirmSubmit(false);
     }
   };
+
+  useEffect(() => {
+    if (mediaBlobUrl) {
+      resetConfirmCycle();
+    }
+  }, [mediaBlobUrl, resetConfirmCycle]);
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -228,6 +256,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
                 {recorderStatus === 'recording' ? (
                   <IconButton
                     onClick={stopRecording}
+                    aria-label="إيقاف التسجيل"
                     sx={{
                       backgroundColor: 'error.light',
                       '&:hover': {
@@ -241,7 +270,10 @@ export default function ConversationPage({ params }: SlugPageParams) {
                 ) : (
                   <IconButton
                     onClick={startRecording}
-                    disabled={recorderStatus === 'acquiring_media'}
+                    aria-label="بدء التسجيل"
+                    disabled={
+                      recorderStatus === 'acquiring_media' || transcriptionLoading || isReviewLocked
+                    }
                     sx={{
                       backgroundColor: 'primary.light',
                       '&:hover': {
@@ -278,7 +310,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
                     <Button
                       variant="contained"
                       onClick={() => fetchText(mediaBlobUrl)}
-                      disabled={transcriptionLoading}
+                      disabled={isConfirmDisabled}
                     >
                       {transcriptionLoading ? (
                         <CircularProgress size={20} sx={{ color: 'white' }} />
@@ -298,6 +330,7 @@ export default function ConversationPage({ params }: SlugPageParams) {
               sx={{
                 mt: 4,
                 ...answerPaperSx(theme.palette.mode),
+                ...compactFeedbackCardSx,
               }}
             >
               <Typography

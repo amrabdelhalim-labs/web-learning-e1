@@ -60,6 +60,14 @@ export const answerPaperSx = (mode: string): SxProps<Theme> => ({
   borderColor: sectionColors.answer.border,
 });
 
+/** Compact feedback cards: balanced spacing for short dynamic responses */
+export const compactFeedbackCardSx = {
+  p: { xs: 1.75, sm: 2.25 },
+  borderRadius: 2,
+  display: 'grid',
+  gap: { xs: 0.75, sm: 1 },
+};
+
 /** Question/prompt Paper styles (purple) */
 export const questionPaperSx = (mode: string): SxProps<Theme> => ({
   ...paperBase,
