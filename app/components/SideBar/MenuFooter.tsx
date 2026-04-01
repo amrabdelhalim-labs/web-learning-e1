@@ -10,8 +10,8 @@ export default function MenuFooter() {
     <Box
       component="footer"
       sx={{
-        position: 'absolute',
-        bottom: 16,
+        mt: 'auto',
+        py: 2,
         textAlign: 'center',
         width: '100%',
         px: 2,
