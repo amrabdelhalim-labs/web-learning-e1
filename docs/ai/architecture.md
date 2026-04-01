@@ -58,3 +58,19 @@ Behavior:
 - Tests location: `app/tests`.
 - Sidebar interaction regression coverage in:
   - `app/tests/lessonSidebarInteraction.test.tsx`
+
+## Dynamic Markdown Rendering Pipeline
+
+Source files:
+
+- `app/components/MarkdownRenderer.tsx`
+- `app/lib/textDirection.ts`
+
+Strategy:
+
+- Raw AI markdown is rendered via `react-markdown` + `remark-gfm` without unsafe HTML parsing.
+- Direction is chosen semantically per markdown block (`p`, headings, list items, quote, table cells) using first-strong-character detection.
+- Container uses `dir="auto"` instead of forcing global RTL.
+- Code blocks and inline code are always LTR with bidi isolation to keep paths/commands/env keys readable.
+- Punctuation-heavy technical tokens (e.g. `/api/health`, `JWT_SECRET=test`, URLs) are treated as isolated inline LTR tokens to avoid symbol drift in mixed Arabic/English lines.
+- Tables support mixed-language content with per-cell direction and horizontal overflow handling.

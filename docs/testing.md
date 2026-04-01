@@ -21,6 +21,7 @@
 - `app/tests/useAppContext.test.tsx`
 - `app/tests/dockerConfig.test.ts`
 - `app/tests/lessonSidebarInteraction.test.tsx`
+- `app/tests/markdownRendererDirectionality.test.tsx`
 
 ## Key Regression Coverage
 
@@ -29,6 +30,12 @@
   - submenu navigation targets correct path
   - lower submenu items remain clickable
   - no click-through to underlying rows
+- Multilingual markdown rendering:
+  - Arabic-only and English-only paragraph direction
+  - mixed Arabic/English prose with inline code
+  - punctuation and symbol stability in mixed bidi lines (`؟ ? : / = @ , ؛`)
+  - table headers/cells direction by content
+  - fenced code blocks remain LTR and readable
 
 ## Commands
 
